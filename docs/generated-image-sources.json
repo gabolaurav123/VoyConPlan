@@ -1,0 +1,35 @@
+{
+  "brand": "VoyConPlan",
+  "created": "2026-09-09",
+  "method": "OpenAI built-in image_gen, one call per asset",
+  "type": "Original AI-generated editorial travel imagery; destinations intentionally unspecified. No stock or real traveler identities.",
+  "palette": {
+    "navy": "#132D32",
+    "lime": "#C9F36B",
+    "ivory": "#F8F9F4"
+  },
+  "assets": [
+    {
+      "file": "couple-coast.png",
+      "dimensions": "1536x1024",
+      "prompt": "Use case: photorealistic-natural. Premium editorial travel photography for the same VoyConPlan travel SaaS series. Horizontal 3:2, 1536x1024. Subtle natural colors, softly warm highlights, deep green-blue shadows echoing #132D32, restrained grain and authentic tactile detail. Modern inviting magazine art direction. Adults have realistic anatomy and candid poses, without identifiable real people. No words, logos, collage, UI, illustration, borders or watermarks. Do not depict a recognizable famous landmark or claim a real destination. Scene: two adult travelers viewed from behind overlooking a sweeping destination-neutral coastal landscape from a grassy hill, gentle pale blue sea, layered green cliffs and an inviting winding path. Travelers placed near lower-left middle, ample pale sky fills upper third. One in ivory linen with a small tan backpack, the other muted sage overshirt. Soft late afternoon sunlight, serene adventurous mood. Wide cinematic depth, natural 35mm editorial photograph.",
+      "original": "Generated images are saved to C:\\Users\\gabol\\.codex\\generated_images\\01a08506-89b8-7c31-a144-ccb58f0cf089 as C:\\Users\\gabol\\.codex\\generated_images\\01a08506-89b8-7c31-a144-ccb58f0cf089\\exec-4e148519-e126-4604-b9d5-fbb90857f79e.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "file": "solo-city.png",
+      "dimensions": "1536x1024",
+      "prompt": "Use case: photorealistic-natural. Premium editorial travel photography for the same VoyConPlan travel SaaS series. Horizontal 3:2, 1536x1024. Subtle natural colors, softly warm highlights, deep green-blue shadows echoing #132D32, restrained grain and authentic tactile detail. Modern inviting magazine art direction. Adults have realistic anatomy and candid poses, without identifiable real people. No words, logos, collage, UI, illustration, borders or watermarks. Do not depict a recognizable famous landmark or claim a real destination. Scene: a solo adult traveler exploring a quiet sunlit, destination-neutral old city street with pale stone facades, leafy balconies and subtly terracotta elements. Three-quarter rear view, adult woman carrying a modest backpack, ivory shirt and navy trousers, turning toward the inviting street. Mid-distance framing so city texture dominates. Candid premium travel magazine photograph with morning light, believable scale and natural skin. No readable signs, famous monuments or recognizable branded buildings.",
+      "original": "Generated images are saved to C:\\Users\\gabol\\.codex\\generated_images\\01a08506-89b8-7c31-a144-ccb58f0cf089 as C:\\Users\\gabol\\.codex\\generated_images\\01a08506-89b8-7c31-a144-ccb58f0cf089\\exec-062785e6-4913-4903-86e2-c1900a3c9815.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "file": "family-nature.png",
+      "dimensions": "1536x1024",
+      "prompt": "Use case: photorealistic-natural. Premium editorial travel photography for the same VoyConPlan travel SaaS series. Horizontal 3:2, 1536x1024. Subtle natural colors, softly warm highlights, deep green-blue shadows echoing #132D32, restrained grain and authentic tactile detail. Modern inviting magazine art direction. Adults have realistic anatomy and candid poses, without identifiable real people. No words, logos, collage, UI, illustration, borders or watermarks. Do not depict a recognizable famous landmark or claim a real destination. Scene: a small family group at a nature overlook, two adults and one child seen at a distance strictly from behind so no child face or identifiable minor is visible. Wide view of a broad mountain meadow, tranquil lake and layered green ridges, destination-neutral. Adults in cream and muted navy, child in light sage. Family occupies lower quarter, landscape and generous calm sky dominate. Authentic gently sunlit editorial travel photography, calm discovery and togetherness.",
+      "original": "Generated images are saved to C:\\Users\\gabol\\.codex\\generated_images\\01a08506-89b8-7c31-a144-ccb58f0cf089 as C:\\Users\\gabol\\.codex\\generated_images\\01a08506-89b8-7c31-a144-ccb58f0cf089\\exec-ff635eb8-3970-4e34-8b56-0821576d4779.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "pending": {
+    "social": "Independent social-card.png completed through built-in imagegen; see social-provenance.json. No generated logo used.",
+    "icon": "Higgsfield Recraft rejected all three jobs before submission: Requires basic plan or higher."
+  }
+}

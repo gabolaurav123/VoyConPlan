@@ -1,0 +1,22 @@
+{
+  "name": "VoyConPlan — Tu viaje, con plan.",
+  "short_name": "VoyConPlan",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fcfcf8",
+  "theme_color": "#183536",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
