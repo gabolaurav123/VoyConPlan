@@ -1,0 +1,28 @@
+.home-plans { margin: 66px 0; }
+.home-plans-heading { display: flex; align-items: end; justify-content: space-between; gap: 28px; margin-bottom: 27px; }
+.home-plans-heading h2 { font-size: clamp(28px, 3vw, 38px); font-weight: 550; letter-spacing: -1.5px; margin: 11px 0; }
+.home-plans-heading p { color: #6c7b61; font-size: 14px; line-height: 1.7; }
+.home-plans-heading > .btn { flex-shrink: 0; }
+.home-plans-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.home-plan-card { display: flex; flex-direction: column; background: #fff; border: 1px solid #dce3d4; border-radius: 18px; padding: 28px; }
+.home-plan-card.highlighted { background: #eef4e3; border-color: #a4bc86; }
+.home-plan-name h3 { font-size: 24px; font-weight: 650; }
+.home-plan-name > span { display: block; color: #627453; font-size: 11px; margin-top: 8px; }
+.home-plan-price { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin: 23px 0; }
+.home-plan-price strong { font-size: 40px; font-weight: 550; letter-spacing: -1.5px; }
+.home-plan-price span { color: #66765b; font-size: 12px; }
+.home-plan-card ul { list-style: none; padding: 0; margin: 0 0 25px; flex: 1; }
+.home-plan-card li { display: flex; align-items: start; gap: 9px; font-size: 13px; line-height: 1.6; margin: 9px 0; }
+.home-plan-card li svg { flex-shrink: 0; color: #779155; margin-top: 2px; }
+.home-plan-card > a { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid #dae2d0; padding-top: 18px; font-weight: 600; font-size: 13px; }
+.home-plan-card > a:hover { color: #5f783d; }
+.home-plans-note { margin-top: 18px; color: #6c7b61; font-size: 12px; line-height: 1.7; }
+.pricing-card[id] { scroll-margin-top: 28px; }
+@media (max-width: 800px) {
+  .home-plans-heading { flex-direction: column; align-items: start; gap: 16px; }
+  .home-plan-card { padding: 22px; }
+}
+@media (max-width: 650px) {
+  .home-plans { margin: 46px 0; }
+  .home-plans-grid { grid-template-columns: 1fr; gap: 16px; }
+}

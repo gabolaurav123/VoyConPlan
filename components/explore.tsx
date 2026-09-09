@@ -50,6 +50,7 @@ import {
 import { toast } from '@/lib/toast';
 import DestinationMap from './map';
 import WebTools from './webmcp';
+import PlansPreview, { type PlanSummary } from './plans-preview';
 export function Pick({
   value,
   onChange,
@@ -95,6 +96,7 @@ export function Toggle({
 export default function Explore() {
   const [search, setSearch] = useState<Search>(defaultSearch),
     [catalog, setCatalog] = useState<Destination[]>([]),
+    [plans, setPlans] = useState<PlanSummary[]>([]),
     [results, setResults] = useState<any[]>([]),
     [user, setUser] = useState<any>(null),
     [favorites, setFavorites] = useState<string[]>([]),
@@ -116,6 +118,7 @@ export default function Explore() {
     api('bootstrap')
       .then(async (b) => {
         setCatalog(b.destinations);
+        setPlans(b.plans);
         setUser(b.user);
         if (b.user) setFavorites(await api('favorites'));
       })
@@ -757,6 +760,7 @@ export default function Explore() {
           </div>
         </div>
       </section>
+      <PlansPreview plans={plans} />
       <section className="travel-stories" aria-labelledby="stories-title">
         <div className="eyebrow">EL PLAN LO PONES TÚ</div>
         <h2 id="stories-title">Hay muchas maneras de ir.</h2>

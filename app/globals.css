@@ -567,8 +567,13 @@ h3 {
     order: 3;
     width: 100%;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
+    font-size: 13px;
     height: 42px;
+  }
+  .topbar nav a {
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .topbar nav a.active:after {
     bottom: 0;
@@ -2306,6 +2311,17 @@ h3 {
 .pdf-preview img { display:block; width:100%; height:auto; }
 @media(max-width:850px) { .story-grid { gap:15px; } .story-copy { padding:18px; } .story-copy>strong { font-size:21px; } .pdf-feature { padding:30px 30px 0; gap:30px; } }
 @media(max-width:650px) { .brand-logo { width:185px; height:51px; } .topbar { gap:8px; padding-top:9px; } .story-grid { grid-template-columns:1fr; gap:20px; } .travel-stories { margin:46px 0; } .pdf-feature { grid-template-columns:1fr; gap:0; padding:28px 24px 0; } .pdf-feature-copy { padding-bottom:25px; } .pdf-preview { max-width:270px; justify-self:center; transform:rotate(3deg) translateY(20px); } .story-copy>strong { font-size:25px; } }
+@media (min-width: 651px) and (max-width: 800px) {
+  .topbar { height: auto; flex-wrap: wrap; gap: 8px; padding-top: 9px; }
+  .topbar .brand-logo { width: 185px; height: 51px; }
+  .topbar nav { order: 3; width: 100%; height: 42px; justify-content: space-between; }
+  .topbar nav a { white-space: nowrap; }
+  .topbar nav a.active:after { bottom: 0; }
+}
+@media (max-width: 360px) {
+  .topbar .brand-logo { width: 150px; }
+  .topbar nav { gap: 6px; font-size: 12px; }
+}
 @media (max-width: 600px) {
   .destination-hero {
     height: 230px;

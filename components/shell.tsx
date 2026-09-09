@@ -162,6 +162,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             ['/', 'Explorar'],
             ['/destinos', 'Destinos'],
             ['/ofertas', 'Ofertas'],
+            ['/planes', 'Planes'],
             ['/viajes', 'Mis viajes'],
           ].map(([href, label]) => (
             <a

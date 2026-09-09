@@ -98,6 +98,17 @@ function General({ path }: { path: string }) {
       .catch((e) => setError(e.message));
     if (path === '/planes') track('pricing_view');
   }, [path]);
+  useEffect(() => {
+    if (path !== '/planes' || !boot) return;
+    const plan = boot.plans.find(
+      (p: { id: string }) => location.hash === '#plan-' + encodeURIComponent(p.id),
+    );
+    if (!plan) return;
+    const frame = requestAnimationFrame(() => {
+      document.getElementById('plan-' + plan.id)?.scrollIntoView({ block: 'start' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [boot, path]);
   if (error)
     return (
       <div className="empty-state">
@@ -242,13 +253,14 @@ function General({ path }: { path: string }) {
       <>
         <div className="centered-heading">
           <div className="eyebrow">UN PLAN PARA CADA VIAJERO</div>
-          <h1 className="page-title">Tu viaje merece un buen plan.</h1>
+          <h1 className="page-title">Planes para tu forma de viajar.</h1>
           <p>Empieza gratis. Elige más herramientas cuando las necesites.</p>
         </div>
         <div className="pricing-grid">
           {boot.plans.map((p: any, i: number) => (
             <section
               className={'pricing-card ' + (i === 1 ? 'featured' : '')}
+              id={'plan-' + p.id}
               key={p.id}
             >
               {i === 1 && <span className="popular">PARA VIAJAR MÁS</span>}
@@ -271,7 +283,7 @@ function General({ path }: { path: string }) {
                 </li>
                 <li>
                   <Check size={17} />
-                  {p.collaborators} acompañante(s)
+                  {p.collaborators} {p.collaborators === 1 ? 'acompañante' : 'acompañantes'}
                 </li>
                 {p.features.map((f: string) => (
                   <li key={f}>
