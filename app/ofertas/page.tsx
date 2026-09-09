@@ -3,7 +3,7 @@ import TravelOffers from '@/components/travel-offers';
 export const metadata = {
   title: 'Vuelos y ofertas',
   description:
-    'Busca vuelos por origen, destino y fechas. Compara los importes totales, las escalas y la vigencia de las tarifas disponibles.',
+    'Explora ofertas publicadas de vuelos con sus rutas, precios y condiciones dentro de VoyConPlan. Consulta tarifas por fechas cuando la conexión esté activa.',
 };
 
 export default function OffersPage() {

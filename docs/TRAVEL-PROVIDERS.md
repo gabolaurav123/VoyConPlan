@@ -1,5 +1,35 @@
 # Tarifas de vuelos y ofertas
 
+La portada de `/ofertas` muestra **Ofertas publicadas** dentro de VoyConPlan,
+con filtros por ciudad y aerolínea y condiciones desplegables. La consulta por
+fechas está en **Vuelos para mis fechas**. Los enlaces externos quedan como
+referencia secundaria de cada publicación.
+
+## Ofertas publicadas, sin credenciales
+
+`GET /api/travel/promotions` lee un conjunto fijo de páginas públicas de Avianca:
+Bogotá–La Paz, Bogotá–Santa Cruz, Cali–La Paz y Medellín–La Paz. El parser verifica
+el encabezado de la ruta, sus códigos, el precio en efectivo y el tipo de viaje.
+Son mínimos publicados en COP, mercado Colombia; no constituyen cotizaciones
+para las fechas o el grupo de una búsqueda. La cobertura se limita a esas fuentes.
+
+Cada tarjeta muestra precio original, ruta, viaje de ida y vuelta, fuente y fecha
+de revisión. No se atribuyen al precio fechas de calendarios ni datos de millas.
+Fechas, cabina y tasas quedan nulas si no constan en el encabezado. SRZ conserva
+el significado de ciudad usado por la fuente; no se convierte en VVI.
+
+La lectura se reutiliza durante una hora como máximo, con dos consultas simultáneas,
+siete segundos de espera y 500 KB por fuente. Una fuente que falla o cambia no
+aporta ofertas anteriores. Los reintentos por fallo esperan diez minutos. Las
+solicitudes concurrentes comparten la misma revisión. Avianca declara actualización
+de sus tarifas cada 24 horas: releer la página no garantiza inventario nuevo.
+
+BoA y LATAM no se incluyeron porque sus páginas devolvieron controles de acceso
+automatizado. No se integraron mediante redirecciones, iframes o consultas a
+servicios internos. Ningún precio fijo de prueba se usa como respaldo de producción.
+
+## Cotizaciones para fechas concretas
+
 La búsqueda de `/ofertas` está conectada al adaptador de **Duffel Flights v2**. Permite consultar ida o ida y vuelta para 1–9 adultos, con origen y destino IATA, fechas, cabina y un máximo de conexiones. No crea reservas, billetes, pagos ni cuentas externas. No necesita PostgreSQL para funcionar.
 
 **Sin una conexión activada devuelve ofertas vacías y un estado explícito.** El catálogo de destinos y los presupuestos DEMO de itinerarios son contenidos separados: no acreditan rutas disponibles, tarifas de avión ni descuentos.

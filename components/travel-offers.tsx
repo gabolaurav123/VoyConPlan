@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import Shell from './shell';
 import AirportInput from './destination-search';
+import PublishedOffers from './published-offers';
 import type {
   TravelStatus,
   TravelOffer as FlightOffer,
@@ -229,6 +230,7 @@ function OfferCard({ offer }: { offer: FlightOffer }) {
 }
 
 export default function TravelOffers() {
+  const [view, setView] = useState<'published' | 'flights'>('published');
   const [status, setStatus] = useState<TravelStatus | null>(null);
   const [statusError, setStatusError] = useState(false);
   const [origin, setOrigin] = useState('');
@@ -268,6 +270,7 @@ export default function TravelOffers() {
     const controller = new AbortController();
     void checkStatus(controller.signal);
     const params = new URLSearchParams(location.search);
+    if (params.has('destination') || params.has('origin')) setView('flights');
     if (/^[A-Z]{3}$/.test(params.get('destination') || ''))
       setDestination(params.get('destination')!);
     if (/^[A-Z]{3}$/.test(params.get('origin') || ''))
@@ -425,15 +428,15 @@ export default function TravelOffers() {
             <em>Un gran comienzo.</em>
           </h1>
           <p>
-            Busca vuelos para tus fechas. Compara el precio total y las escalas,
-            con la fecha de consulta siempre a la vista.
+            Explora ofertas de vuelos y revisa sus importes, rutas y condiciones
+            sin salir de VoyConPlan.
           </p>
           <div className="discovery-hero-points">
             <span>
-              <Check size={16} /> Precio para todo el grupo
+              <Check size={16} /> Precios en su moneda original
             </span>
             <span>
-              <Check size={16} /> Sin registro para consultar
+              <Check size={16} /> Detalles aquí mismo
             </span>
           </div>
         </div>
@@ -451,433 +454,413 @@ export default function TravelOffers() {
         </div>
       </section>
 
-      <section
-        className="flight-search-panel"
-        aria-labelledby="flight-search-title"
+      <div
+        className="flight-view-switch"
+        aria-label="Tipo de búsqueda de vuelos"
       >
-        <div className="flight-search-title">
-          <div>
-            <h2 id="flight-search-title">¿Adónde nos vamos?</h2>
-            <p>Elige aeropuertos, fechas y cómo quieres volar.</p>
-          </div>
-          <span
-            className={
-              'flight-connection-status ' +
-              (status?.mode === 'live' ? 'is-live' : '')
-            }
-          >
-            <i />
-            {!status && !statusError
-              ? 'Comprobando disponibilidad…'
-              : status?.mode === 'live'
-                ? 'Consulta de tarifas en vivo'
-                : status?.mode === 'test'
-                  ? 'Modo de prueba · precios simulados'
-                  : 'Tarifas temporalmente no disponibles'}
-          </span>
-        </div>
-        <form onSubmit={searchFlights}>
-          <fieldset className="flight-journey-type">
-            <legend className="sr-only">Tipo de viaje</legend>
-            <label>
-              <input
-                type="radio"
-                name="journey"
-                checked={roundTrip}
-                onChange={() => setRoundTrip(true)}
-              />{' '}
-              Ida y vuelta
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="journey"
-                checked={!roundTrip}
-                onChange={() => setRoundTrip(false)}
-              />{' '}
-              Solo ida
-            </label>
-          </fieldset>
-          <div className="flight-main-fields">
-            <AirportInput label="Desde" value={origin} onChange={setOrigin} />
-            <AirportInput
-              label="Hasta"
-              value={destination}
-              onChange={setDestination}
-            />
-            <label className="flight-date-field">
-              <span>
-                <CalendarDays size={16} /> Salida
-              </span>
-              <input
-                aria-label="Fecha de salida"
-                type="date"
-                required
-                min={dateFromToday(0)}
-                max={dateFromToday(330)}
-                value={departureDate}
-                onChange={(event) => {
-                  setDepartureDate(event.target.value);
-                  if (returnDate < event.target.value)
-                    setReturnDate(event.target.value);
-                }}
-              />
-            </label>
-            <label className="flight-date-field">
-              <span>
-                <CalendarDays size={16} /> Regreso
-              </span>
-              <input
-                aria-label="Fecha de regreso"
-                type="date"
-                required={roundTrip}
-                disabled={!roundTrip}
-                min={departureDate || dateFromToday(0)}
-                max={dateFromToday(330)}
-                value={roundTrip ? returnDate : ''}
-                onChange={(event) => setReturnDate(event.target.value)}
-              />
-            </label>
-          </div>
-          <div className="flight-more-fields">
-            <label>
-              <span>
-                <Users size={16} /> Adultos
-              </span>
-              <input
-                type="number"
-                min={1}
-                max={9}
-                step={1}
-                required
-                value={adults}
-                onChange={(event) => setAdults(Number(event.target.value))}
-              />
-            </label>
-            <label>
-              <span>Cabina</span>
-              <select
-                value={cabinClass}
-                onChange={(event) =>
-                  setCabinClass(event.target.value as TravelQuery['cabinClass'])
-                }
-              >
-                <option value="economy">Económica</option>
-                <option value="premium_economy">Económica premium</option>
-                <option value="business">Ejecutiva</option>
-                <option value="first">Primera</option>
-              </select>
-            </label>
-            <label>
-              <span>Escalas por trayecto</span>
-              <select
-                value={maxConnections}
-                onChange={(event) =>
-                  setMaxConnections(Number(event.target.value))
-                }
-              >
-                <option value={2}>Hasta 2 escalas</option>
-                <option value={1}>Hasta 1 escala</option>
-                <option value={0}>Solo vuelos directos</option>
-              </select>
-            </label>
-            <button
-              className="btn lime flight-search-button"
-              type="submit"
-              disabled={busy || !status?.available}
-            >
-              {busy ? (
-                <LoaderCircle size={18} className="spin" />
-              ) : (
-                <Search size={18} />
-              )}
-              {busy ? 'Consultando vuelos…' : 'Buscar vuelos'}
-            </button>
-          </div>
-          <p className="flight-form-note">
-            Por ahora, búsquedas para adultos. Para viajar con menores, confirma
-            las opciones y condiciones con la aerolínea.
-          </p>
-        </form>
-        {statusError && (
-          <div className="travel-service-notice" role="status">
-            <Info size={20} />
-            <div>
-              <strong>No pudimos comprobar la disponibilidad.</strong>
-              <p>Inténtalo de nuevo en un momento.</p>
-            </div>
-            <button
-              className="btn outline small"
-              onClick={() => void checkStatus()}
-            >
-              Reintentar
-            </button>
-          </div>
-        )}
-        {status && !status.available && (
-          <div className="travel-service-notice" role="status">
-            <Compass size={23} />
-            <div>
-              <strong>Las tarifas están en preparación.</strong>
-              <p>
-                Aún no podemos mostrar precios de vuelos. Puedes explorar el
-                catálogo y elegir tu próximo destino mientras habilitamos las
-                consultas.
-              </p>
-            </div>
-            <a href="/destinos">
-              Explorar destinos <ArrowUpRight size={16} />
-            </a>
-          </div>
-        )}
-        {status?.mode === 'test' && (
-          <div className="travel-service-notice test-notice" role="status">
-            <Info size={20} />
-            <div>
-              <strong>Estás viendo una demostración del buscador.</strong>
-              <p>
-                Los resultados de prueba son simulados y no representan precios,
-                vuelos ni disponibilidad reales.
-              </p>
-            </div>
-          </div>
-        )}
-        {error && (
-          <div className="notice warning space-top" role="alert">
-            <Info size={19} />
-            <p>{error}</p>
-          </div>
-        )}
-      </section>
-
-      {response && (
-        <section
-          className="flight-results"
-          aria-labelledby="flight-results-title"
+        <button
+          type="button"
+          aria-pressed={view === 'published'}
+          onClick={() => setView('published')}
         >
-          <div className="section-heading">
-            <div>
-              <div className="eyebrow">
-                {response.mode === 'test'
-                  ? 'RESULTADOS SIMULADOS'
-                  : 'TARIFAS PARA TUS FECHAS'}
+          <Ticket size={18} />
+          Ofertas publicadas
+        </button>
+        <button
+          type="button"
+          aria-pressed={view === 'flights'}
+          onClick={() => {
+            setView('flights');
+            void checkStatus();
+          }}
+        >
+          <Search size={18} />
+          Vuelos para mis fechas
+          {status && !status.available && <small>Pendiente de conexión</small>}
+        </button>
+      </div>
+      {view === 'published' && <PublishedOffers />}
+      {view === 'flights' && (
+        <>
+          <section
+            className="flight-search-panel"
+            aria-labelledby="flight-search-title"
+          >
+            <div className="flight-search-title">
+              <div>
+                <h2 id="flight-search-title">¿Adónde nos vamos?</h2>
+                <p>Elige aeropuertos, fechas y cómo quieres volar.</p>
               </div>
-              <h2 id="flight-results-title" ref={resultHeading} tabIndex={-1}>
-                {response.query.origin} <ArrowRight size={24} />{' '}
-                {response.query.destination}
-              </h2>
-              <p>
-                {displayDate(response.query.departureDate)}
-                {response.query.returnDate
-                  ? ' — ' + displayDate(response.query.returnDate)
-                  : ' · solo ida'}{' '}
-                · {response.query.adults}{' '}
-                {response.query.adults === 1 ? 'adulto' : 'adultos'}
-              </p>
-            </div>
-            <button
-              className="btn outline small"
-              disabled={busy || !status?.available}
-              onClick={() => void searchFlights()}
-            >
-              <RefreshCw size={16} />{' '}
-              {queryChanged ? 'Buscar con los cambios' : 'Actualizar consulta'}
-            </button>
-          </div>
-          <div className="offer-freshness">
-            <Clock3 size={17} />
-            <span>
-              Consultado: {displayConsultation(response.consultedAt)}.
-              {response.cached
-                ? ' Consulta reciente recuperada; su fecha se conserva.'
-                : ''}{' '}
-              Los precios pueden cambiar antes de comprar.
-            </span>
-          </div>
-          {queryChanged && (
-            <div className="travel-service-notice">
-              <Info size={18} />
-              <p>
-                Has cambiado la búsqueda. Estos resultados corresponden a las
-                fechas y aeropuertos indicados arriba; vuelve a buscar para
-                aplicar los cambios.
-              </p>
-            </div>
-          )}
-          {unexpiredOffers.length > 0 && (
-            <div className="flight-result-filters">
-              <span>
-                <SlidersHorizontal size={17} /> {offers.length}{' '}
-                {offers.length === 1 ? 'opción' : 'opciones'}
+              <span
+                className={
+                  'flight-connection-status ' +
+                  (status?.mode === 'live' ? 'is-live' : '')
+                }
+              >
+                <i />
+                {!status && !statusError
+                  ? 'Comprobando disponibilidad…'
+                  : status?.mode === 'live'
+                    ? 'Consulta de tarifas en vivo'
+                    : status?.mode === 'test'
+                      ? 'Modo de prueba · precios simulados'
+                      : 'Consulta por fechas no habilitada'}
               </span>
-              <label>
-                <span className="sr-only">Moneda de las tarifas</span>
-                <select
-                  value={currency}
-                  onChange={(event) => setCurrency(event.target.value)}
-                >
-                  <option value="">Todas las monedas</option>
-                  {currencies.map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <span className="sr-only">Aerolínea</span>
-                <select
-                  value={airline}
-                  onChange={(event) => setAirline(event.target.value)}
-                >
-                  <option value="">Todas las aerolíneas</option>
-                  {airlines.map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <span className="sr-only">Ordenar resultados</span>
-                <select
-                  value={sort}
-                  onChange={(event) => setSort(event.target.value)}
-                >
-                  <option value="price">
-                    Menor precio
-                    {currencies.length > 1 && !currency ? ' por moneda' : ''}
-                  </option>
-                  <option value="duration">Menor duración total</option>
-                  <option value="departure">Salida más temprana</option>
-                </select>
-              </label>
             </div>
-          )}
-          {currencies.length > 1 && !currency && (
-            <p className="flight-form-note">
-              Los importes se muestran en la moneda original. No convertimos
-              divisas; el orden por precio compara cada moneda por separado.
-            </p>
-          )}
-          <div className="flight-offers-list" aria-live="polite">
-            {offers.map((offer) => (
-              <OfferCard key={offer.id} offer={offer} />
-            ))}
-          </div>
-          {offers.length === 0 && (
-            <div className="discovery-empty">
-              <Plane size={35} />
-              <h3>
-                {response.offers.length > 0 && unexpiredOffers.length === 0
-                  ? 'Esta consulta ha caducado.'
-                  : unexpiredOffers.length > 0
-                    ? 'Ninguna opción coincide con esos filtros.'
-                    : 'No hay tarifas disponibles para esta búsqueda.'}
-              </h3>
-              <p>
-                {response.offers.length > 0 && unexpiredOffers.length === 0
-                  ? 'Actualiza la búsqueda para consultar la disponibilidad y los precios de nuevo.'
-                  : unexpiredOffers.length > 0
-                    ? 'Prueba otra aerolínea o moneda para ver más opciones.'
-                    : 'Prueba otras fechas, permite escalas o busca un aeropuerto cercano. La disponibilidad depende de las aerolíneas participantes.'}
-              </p>
-              {unexpiredOffers.length > 0 ? (
+            <form onSubmit={searchFlights}>
+              <fieldset className="flight-journey-type">
+                <legend className="sr-only">Tipo de viaje</legend>
+                <label>
+                  <input
+                    type="radio"
+                    name="journey"
+                    checked={roundTrip}
+                    onChange={() => setRoundTrip(true)}
+                  />{' '}
+                  Ida y vuelta
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="journey"
+                    checked={!roundTrip}
+                    onChange={() => setRoundTrip(false)}
+                  />{' '}
+                  Solo ida
+                </label>
+              </fieldset>
+              <div className="flight-main-fields">
+                <AirportInput
+                  label="Desde"
+                  value={origin}
+                  onChange={setOrigin}
+                />
+                <AirportInput
+                  label="Hasta"
+                  value={destination}
+                  onChange={setDestination}
+                />
+                <label className="flight-date-field">
+                  <span>
+                    <CalendarDays size={16} /> Salida
+                  </span>
+                  <input
+                    aria-label="Fecha de salida"
+                    type="date"
+                    required
+                    min={dateFromToday(0)}
+                    max={dateFromToday(330)}
+                    value={departureDate}
+                    onChange={(event) => {
+                      setDepartureDate(event.target.value);
+                      if (returnDate < event.target.value)
+                        setReturnDate(event.target.value);
+                    }}
+                  />
+                </label>
+                <label className="flight-date-field">
+                  <span>
+                    <CalendarDays size={16} /> Regreso
+                  </span>
+                  <input
+                    aria-label="Fecha de regreso"
+                    type="date"
+                    required={roundTrip}
+                    disabled={!roundTrip}
+                    min={departureDate || dateFromToday(0)}
+                    max={dateFromToday(330)}
+                    value={roundTrip ? returnDate : ''}
+                    onChange={(event) => setReturnDate(event.target.value)}
+                  />
+                </label>
+              </div>
+              <div className="flight-more-fields">
+                <label>
+                  <span>
+                    <Users size={16} /> Adultos
+                  </span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={9}
+                    step={1}
+                    required
+                    value={adults}
+                    onChange={(event) => setAdults(Number(event.target.value))}
+                  />
+                </label>
+                <label>
+                  <span>Cabina</span>
+                  <select
+                    value={cabinClass}
+                    onChange={(event) =>
+                      setCabinClass(
+                        event.target.value as TravelQuery['cabinClass'],
+                      )
+                    }
+                  >
+                    <option value="economy">Económica</option>
+                    <option value="premium_economy">Económica premium</option>
+                    <option value="business">Ejecutiva</option>
+                    <option value="first">Primera</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Escalas por trayecto</span>
+                  <select
+                    value={maxConnections}
+                    onChange={(event) =>
+                      setMaxConnections(Number(event.target.value))
+                    }
+                  >
+                    <option value={2}>Hasta 2 escalas</option>
+                    <option value={1}>Hasta 1 escala</option>
+                    <option value={0}>Solo vuelos directos</option>
+                  </select>
+                </label>
                 <button
-                  className="btn outline"
-                  onClick={() => {
-                    setCurrency('');
-                    setAirline('');
-                  }}
+                  className="btn lime flight-search-button"
+                  type="submit"
+                  disabled={busy || !status?.available}
                 >
-                  Quitar filtros
+                  {busy ? (
+                    <LoaderCircle size={18} className="spin" />
+                  ) : (
+                    <Search size={18} />
+                  )}
+                  {busy ? 'Consultando vuelos…' : 'Buscar vuelos'}
                 </button>
-              ) : (
-                <a className="btn outline" href="#flight-search-title">
-                  Ajustar mi búsqueda <ArrowUpRight size={16} />
-                </a>
-              )}
-            </div>
-          )}
-          <p className="catalog-source">
-            Fuente: {response.provider}.{' '}
-            {response.mode === 'test'
-              ? 'Datos de prueba, sin valor comercial.'
-              : 'La consulta no cubre necesariamente todas las aerolíneas ni garantiza el menor precio del mercado.'}{' '}
-            Las reservas y los pagos no se realizan en VoyConPlan.
-          </p>
-        </section>
-      )}
+              </div>
+              <p className="flight-form-note">
+                Por ahora, búsquedas para adultos. Para viajar con menores,
+                confirma las opciones y condiciones con la aerolínea.
+              </p>
+            </form>
+            {statusError && (
+              <div className="travel-service-notice" role="status">
+                <Info size={20} />
+                <div>
+                  <strong>No pudimos comprobar la disponibilidad.</strong>
+                  <p>Inténtalo de nuevo en un momento.</p>
+                </div>
+                <button
+                  className="btn outline small"
+                  onClick={() => void checkStatus()}
+                >
+                  Reintentar
+                </button>
+              </div>
+            )}
+            {status && !status.available && (
+              <div className="travel-service-notice" role="status">
+                <Compass size={23} />
+                <div>
+                  <strong>
+                    La consulta para tus fechas aún no está habilitada.
+                  </strong>
+                  <p>
+                    Falta activar la conexión de tarifas. Mientras tanto, puedes
+                    consultar las ofertas publicadas y sus condiciones aquí
+                    mismo.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="btn outline small"
+                  onClick={() => setView('published')}
+                >
+                  Ver ofertas publicadas <ArrowRight size={16} />
+                </button>
+              </div>
+            )}
+            {status?.mode === 'test' && (
+              <div className="travel-service-notice test-notice" role="status">
+                <Info size={20} />
+                <div>
+                  <strong>Estás viendo una demostración del buscador.</strong>
+                  <p>
+                    Los resultados de prueba son simulados y no representan
+                    precios, vuelos ni disponibilidad reales.
+                  </p>
+                </div>
+              </div>
+            )}
+            {error && (
+              <div className="notice warning space-top" role="alert">
+                <Info size={19} />
+                <p>{error}</p>
+              </div>
+            )}
+          </section>
 
-      <section
-        className="official-airline-section"
-        aria-labelledby="official-airline-title"
-      >
-        <div className="section-heading">
-          <div>
-            <div className="eyebrow">DIRECTO A LA FUENTE</div>
-            <h2 id="official-airline-title">
-              Ofertas y vuelos en sitios oficiales.
-            </h2>
-            <p>
-              Explora las promociones publicadas por las aerolíneas o consulta
-              tu ruta directamente. Elige tu país en cada sitio para ver las
-              condiciones que correspondan.
-            </p>
-          </div>
-        </div>
-        <div className="official-airlines-grid">
-          <article className="official-airline-card">
-            <span className="airline-tag">Promociones oficiales</span>
-            <h3>Avianca</h3>
-            <p>
-              Consulta su apartado de ofertas de vuelos. Revisa el país de
-              compra, las fechas y las condiciones de cada promoción.
-            </p>
-            <a
-              href="https://www.avianca.com/es/ofertas/ofertas-vuelos?poscode=US"
-              target="_blank"
-              rel="noreferrer"
+          {response && (
+            <section
+              className="flight-results"
+              aria-labelledby="flight-results-title"
             >
-              Ver en sitio oficial <ArrowUpRight size={17} />
-              <span className="sr-only"> de Avianca, abre otra pestaña</span>
-            </a>
-          </article>
-          <article className="official-airline-card">
-            <span className="airline-tag">Promociones oficiales</span>
-            <h3>LATAM</h3>
-            <p>
-              Explora las ofertas publicadas en su sitio de Perú. Puedes cambiar
-              de país para consultar otras rutas y monedas.
-            </p>
-            <a
-              href="https://www.latamairlines.com/pe/es/ofertas/ofertas-latam"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Ver en sitio oficial <ArrowUpRight size={17} />
-              <span className="sr-only"> de LATAM, abre otra pestaña</span>
-            </a>
-          </article>
-          <article className="official-airline-card">
-            <span className="airline-tag">Cotización directa</span>
-            <h3>BoA</h3>
-            <p>
-              Busca vuelos de Boliviana de Aviación y comprueba en su web el
-              importe y la disponibilidad para tu itinerario.
-            </p>
-            <a href="https://www.boa.bo/" target="_blank" rel="noreferrer">
-              Ver en sitio oficial <ArrowUpRight size={17} />
-              <span className="sr-only"> de BoA, abre otra pestaña</span>
-            </a>
-          </article>
-        </div>
-        <p className="catalog-source">
-          Enlaces a webs externas. Las promociones, la disponibilidad y las
-          condiciones son responsabilidad de cada aerolínea; aquí no se muestran
-          descuentos ni precios sin verificar.
-        </p>
-      </section>
+              <div className="section-heading">
+                <div>
+                  <div className="eyebrow">
+                    {response.mode === 'test'
+                      ? 'RESULTADOS SIMULADOS'
+                      : 'TARIFAS PARA TUS FECHAS'}
+                  </div>
+                  <h2
+                    id="flight-results-title"
+                    ref={resultHeading}
+                    tabIndex={-1}
+                  >
+                    {response.query.origin} <ArrowRight size={24} />{' '}
+                    {response.query.destination}
+                  </h2>
+                  <p>
+                    {displayDate(response.query.departureDate)}
+                    {response.query.returnDate
+                      ? ' — ' + displayDate(response.query.returnDate)
+                      : ' · solo ida'}{' '}
+                    · {response.query.adults}{' '}
+                    {response.query.adults === 1 ? 'adulto' : 'adultos'}
+                  </p>
+                </div>
+                <button
+                  className="btn outline small"
+                  disabled={busy || !status?.available}
+                  onClick={() => void searchFlights()}
+                >
+                  <RefreshCw size={16} />{' '}
+                  {queryChanged
+                    ? 'Buscar con los cambios'
+                    : 'Actualizar consulta'}
+                </button>
+              </div>
+              <div className="offer-freshness">
+                <Clock3 size={17} />
+                <span>
+                  Consultado: {displayConsultation(response.consultedAt)}.
+                  {response.cached
+                    ? ' Consulta reciente recuperada; su fecha se conserva.'
+                    : ''}{' '}
+                  Los precios pueden cambiar antes de comprar.
+                </span>
+              </div>
+              {queryChanged && (
+                <div className="travel-service-notice">
+                  <Info size={18} />
+                  <p>
+                    Has cambiado la búsqueda. Estos resultados corresponden a
+                    las fechas y aeropuertos indicados arriba; vuelve a buscar
+                    para aplicar los cambios.
+                  </p>
+                </div>
+              )}
+              {unexpiredOffers.length > 0 && (
+                <div className="flight-result-filters">
+                  <span>
+                    <SlidersHorizontal size={17} /> {offers.length}{' '}
+                    {offers.length === 1 ? 'opción' : 'opciones'}
+                  </span>
+                  <label>
+                    <span className="sr-only">Moneda de las tarifas</span>
+                    <select
+                      value={currency}
+                      onChange={(event) => setCurrency(event.target.value)}
+                    >
+                      <option value="">Todas las monedas</option>
+                      {currencies.map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span className="sr-only">Aerolínea</span>
+                    <select
+                      value={airline}
+                      onChange={(event) => setAirline(event.target.value)}
+                    >
+                      <option value="">Todas las aerolíneas</option>
+                      {airlines.map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span className="sr-only">Ordenar resultados</span>
+                    <select
+                      value={sort}
+                      onChange={(event) => setSort(event.target.value)}
+                    >
+                      <option value="price">
+                        Menor precio
+                        {currencies.length > 1 && !currency
+                          ? ' por moneda'
+                          : ''}
+                      </option>
+                      <option value="duration">Menor duración total</option>
+                      <option value="departure">Salida más temprana</option>
+                    </select>
+                  </label>
+                </div>
+              )}
+              {currencies.length > 1 && !currency && (
+                <p className="flight-form-note">
+                  Los importes se muestran en la moneda original. No convertimos
+                  divisas; el orden por precio compara cada moneda por separado.
+                </p>
+              )}
+              <div className="flight-offers-list" aria-live="polite">
+                {offers.map((offer) => (
+                  <OfferCard key={offer.id} offer={offer} />
+                ))}
+              </div>
+              {offers.length === 0 && (
+                <div className="discovery-empty">
+                  <Plane size={35} />
+                  <h3>
+                    {response.offers.length > 0 && unexpiredOffers.length === 0
+                      ? 'Esta consulta ha caducado.'
+                      : unexpiredOffers.length > 0
+                        ? 'Ninguna opción coincide con esos filtros.'
+                        : 'No hay tarifas disponibles para esta búsqueda.'}
+                  </h3>
+                  <p>
+                    {response.offers.length > 0 && unexpiredOffers.length === 0
+                      ? 'Actualiza la búsqueda para consultar la disponibilidad y los precios de nuevo.'
+                      : unexpiredOffers.length > 0
+                        ? 'Prueba otra aerolínea o moneda para ver más opciones.'
+                        : 'Prueba otras fechas, permite escalas o busca un aeropuerto cercano. La disponibilidad depende de las aerolíneas participantes.'}
+                  </p>
+                  {unexpiredOffers.length > 0 ? (
+                    <button
+                      className="btn outline"
+                      onClick={() => {
+                        setCurrency('');
+                        setAirline('');
+                      }}
+                    >
+                      Quitar filtros
+                    </button>
+                  ) : (
+                    <a className="btn outline" href="#flight-search-title">
+                      Ajustar mi búsqueda <ArrowUpRight size={16} />
+                    </a>
+                  )}
+                </div>
+              )}
+              <p className="catalog-source">
+                Fuente: {response.provider}.{' '}
+                {response.mode === 'test'
+                  ? 'Datos de prueba, sin valor comercial.'
+                  : 'La consulta no cubre necesariamente todas las aerolíneas ni garantiza el menor precio del mercado.'}{' '}
+                Las reservas y los pagos no se realizan en VoyConPlan.
+              </p>
+            </section>
+          )}
+        </>
+      )}
       <section
         className="fare-principles"
         aria-labelledby="fare-principles-title"
@@ -933,12 +916,11 @@ export default function TravelOffers() {
           <details>
             <summary>¿Los precios se actualizan automáticamente?</summary>
             <p>
-              Cada búsqueda consulta al proveedor cuando el servicio está
-              disponible. Durante un breve intervalo puede reutilizarse una
-              consulta reciente, conservando su fecha. Las tarifas caducadas se
-              retiran de la pantalla; usa «Actualizar consulta» para volver a
-              buscar. No actualizamos precios de forma continua en segundo
-              plano.
+              Las ofertas publicadas se revisan al cargar la sección, con una
+              caché limitada que conserva la fecha de revisión. En «Vuelos para
+              mis fechas», cada búsqueda consulta al proveedor cuando la
+              conexión está activa; una consulta reciente puede reutilizarse
+              durante 90 segundos. Los precios que caducan se retiran.
             </p>
           </details>
           <details>
@@ -953,9 +935,11 @@ export default function TravelOffers() {
           <details>
             <summary>¿El importe es por persona o por todo el grupo?</summary>
             <p>
-              El precio destacado es el total para todos los adultos de la
-              búsqueda, en la moneda devuelta por el proveedor. Los extras o
-              servicios opcionales deben confirmarse al comprar.
+              En «Vuelos para mis fechas», el precio es el total para los
+              adultos de la búsqueda. En «Ofertas publicadas», se muestra el
+              importe de partida de la aerolínea y sus condiciones, sin
+              multiplicarlo por viajeros ni atribuirlo a unas fechas que no
+              estén publicadas.
             </p>
           </details>
           <details>
@@ -969,10 +953,10 @@ export default function TravelOffers() {
           <details>
             <summary>¿Cómo sé si una tarifa es real?</summary>
             <p>
-              El buscador indica si trabaja en vivo o en modo de prueba. Los
-              resultados de prueba llevan siempre la etiqueta «Precio simulado».
-              Si la consulta de tarifas no está disponible, mostramos ese estado
-              y no rellenamos el apartado con precios de ejemplo.
+              Las ofertas publicadas incluyen su fuente oficial y fecha de
+              revisión. Son precios de partida, sujetos a condiciones. La
+              búsqueda por fechas distingue entre tarifas consultadas en vivo y
+              resultados de prueba etiquetados como «Precio simulado».
             </p>
           </details>
         </div>
