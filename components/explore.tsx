@@ -14,11 +14,11 @@ import {
   LayoutGrid,
   Scale,
   Info,
-  Plus,
-  Minus,
   X,
+  Globe2,
+  Plane,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Select,
   SelectTrigger,
@@ -253,9 +253,17 @@ export default function Explore() {
             <span>lo que tienes.</span>
           </h1>
           <p>
-            No necesitas saber adónde. Dinos desde dónde sales y cuánto quieres
-            gastar. El plan empieza aquí.
+            Descubre nuevos destinos, consulta vuelos para tus fechas y dale
+            forma a ese viaje que tienes en mente. El plan empieza aquí.
           </p>
+          <div className="hero-discovery-actions">
+            <a className="btn lime" href="/destinos">
+              Explorar el mundo <Globe2 size={17} />
+            </a>
+            <a className="btn outline" href="/ofertas">
+              Vuelos y ofertas <ArrowUpRight size={17} />
+            </a>
+          </div>
           <div className="hero-note">
             <Compass size={18} /> Tu viaje, con plan.
           </div>
@@ -291,9 +299,35 @@ export default function Explore() {
           </div>
         </div>
       </section>
+      <div className="discovery-home-links">
+        <a className="discovery-home-link" href="/destinos">
+          <Globe2 size={27} />
+          <span>
+            <strong>El mundo, a tu alcance.</strong>
+            <small>Busca ciudades y aeropuertos por país o región.</small>
+          </span>
+          <ArrowUpRight size={20} />
+        </a>
+        <a className="discovery-home-link" href="/ofertas">
+          <Plane size={27} />
+          <span>
+            <strong>Tarifas para tus fechas.</strong>
+            <small>
+              Consulta vuelos según disponibilidad y visita las ofertas
+              oficiales.
+            </small>
+          </span>
+          <ArrowUpRight size={20} />
+        </a>
+      </div>
       <section className="search-panel">
         <div className="search-heading">
-          <h2>¿Hasta dónde puedes viajar con tu presupuesto?</h2>
+          <div>
+            <h2>Empieza por imaginar tu presupuesto.</h2>
+            <span className="planning-demo-label">
+              Simulador DEMO · 6 destinos de ejemplo · sin precios en vivo
+            </span>
+          </div>
           <div className="travel-types">
             {['Solo', 'En pareja', 'En familia'].map((x) => (
               <button
@@ -377,8 +411,9 @@ export default function Explore() {
           </span>
           <div className="inline">
             <button onClick={() => setAdvanced(!advanced)}>
-              <SlidersHorizontal size={15} /> {search.travelers} {search.travelers === 1 ? 'viajero' : 'viajeros'} ·{' '}
-              {search.days} {search.days === 1 ? 'día' : 'días'} · Filtros
+              <SlidersHorizontal size={15} /> {search.travelers}{' '}
+              {search.travelers === 1 ? 'viajero' : 'viajeros'} · {search.days}{' '}
+              {search.days === 1 ? 'día' : 'días'} · Filtros
             </button>
             <button onClick={() => setKnown(true)}>
               Ya sé adónde quiero ir <ArrowUpRight size={15} />
@@ -527,14 +562,23 @@ export default function Explore() {
             ))}
           </div>
           <span className="muted">
-            {search.travelers} {search.travelers === 1 ? 'persona' : 'personas'} · {search.days} {search.days === 1 ? 'día' : 'días'} · {search.currency}
+            {search.travelers} {search.travelers === 1 ? 'persona' : 'personas'}{' '}
+            · {search.days} {search.days === 1 ? 'día' : 'días'} ·{' '}
+            {search.currency}
           </span>
         </div>
         <div className="demo-note">
           <Info size={16} />
           <span>
             <b>DEMO.</b> Costos y tipos de cambio de ejemplo, sin consulta en
-            vivo. No son ofertas. Visa y documentación pendientes de verificar.
+            vivo. No son ofertas. Para buscar tarifas, visita{' '}
+            <a
+              href="/ofertas"
+              style={{ textDecoration: 'underline', fontWeight: 600 }}
+            >
+              Vuelos y ofertas
+            </a>
+            . Visa y documentación pendientes de verificar.
           </span>
         </div>
         {error && (
@@ -718,16 +762,57 @@ export default function Explore() {
         <h2 id="stories-title">Hay muchas maneras de ir.</h2>
         <div className="story-grid">
           {[
-            ['Solo', 'A tu aire.', 'Sigue tu curiosidad. Encuentra tu propio ritmo.', 'solo-trip.png', 1],
-            ['En pareja', 'Mejor, contigo.', 'Una escapada y nuevas historias para compartir.', 'together-trip.png', 2],
-            ['En familia', 'Recuerdos en familia.', 'Pequeñas aventuras que se quedan para siempre.', 'family-trip.png', 4],
+            [
+              'Solo',
+              'A tu aire.',
+              'Sigue tu curiosidad. Encuentra tu propio ritmo.',
+              'solo-trip.png',
+              1,
+            ],
+            [
+              'En pareja',
+              'Mejor, contigo.',
+              'Una escapada y nuevas historias para compartir.',
+              'together-trip.png',
+              2,
+            ],
+            [
+              'En familia',
+              'Recuerdos en familia.',
+              'Pequeñas aventuras que se quedan para siempre.',
+              'family-trip.png',
+              4,
+            ],
           ].map(([type, title, description, photo, travelers]) => (
-            <button className="story-card" key={String(type)} onClick={() => {
-              patch({ type: String(type), travelers: Number(travelers) });
-              document.querySelector('.search-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }}>
-              <img src={'/brand/' + photo} alt={'Inspiración para viajar ' + String(type).toLowerCase() + '. Escena editorial generada.'} width={1536} height={1024} loading="lazy" />
-              <span className="story-copy"><strong>{title}</strong><span>{description}</span><span className="story-link">Planificar {String(type).toLowerCase()} <ArrowUpRight size={17} /></span></span>
+            <button
+              className="story-card"
+              key={String(type)}
+              onClick={() => {
+                patch({ type: String(type), travelers: Number(travelers) });
+                document
+                  .querySelector('.search-panel')
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+            >
+              <img
+                src={'/brand/' + photo}
+                alt={
+                  'Inspiración para viajar ' +
+                  String(type).toLowerCase() +
+                  '. Escena editorial generada.'
+                }
+                width={1536}
+                height={1024}
+                loading="lazy"
+              />
+              <span className="story-copy">
+                <strong>{title}</strong>
+                <span>{description}</span>
+                <span className="story-link">
+                  Planificar {String(type).toLowerCase()}{' '}
+                  <ArrowUpRight size={17} />
+                </span>
+              </span>
             </button>
           ))}
         </div>
@@ -735,14 +820,88 @@ export default function Explore() {
       <section className="pdf-feature" aria-labelledby="pdf-feature-title">
         <div className="pdf-feature-copy">
           <div className="eyebrow">TU PLAN, TAMBIÉN EN PAPEL</div>
-          <h2 id="pdf-feature-title">Un viaje bien pensado.<br />Un plan que da gusto llevar.</h2>
-          <p>Itinerario, presupuesto y preparativos en un documento claro, con fotografías y espacio para lo que importa. Descárgalo y llévalo contigo.</p>
-          <a className="btn lime" href="/examples/voyconplan-ejemplo.pdf" target="_blank" rel="noreferrer">Ver un PDF de ejemplo <ArrowUpRight size={18} /></a>
+          <h2 id="pdf-feature-title">
+            Un viaje bien pensado.
+            <br />
+            Un plan que da gusto llevar.
+          </h2>
+          <p>
+            Itinerario, presupuesto y preparativos en un documento claro, con
+            fotografías y espacio para lo que importa. Descárgalo y llévalo
+            contigo.
+          </p>
+          <a
+            className="btn lime"
+            href="/examples/voyconplan-ejemplo.pdf?v=2"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Ver un PDF de ejemplo <ArrowUpRight size={18} />
+          </a>
           <small>Ejemplo de planificación de 3 días. Datos orientativos.</small>
         </div>
-        <a className="pdf-preview" href="/examples/voyconplan-ejemplo.pdf" target="_blank" rel="noreferrer" aria-label="Abrir el PDF de ejemplo de VoyConPlan">
-          <img src="/brand/pdf-preview.png" alt="Primera página del nuevo PDF de VoyConPlan, con fotografía, presupuesto y composición continua." width={794} height={1123} loading="lazy" />
+        <a
+          className="pdf-preview"
+          href="/examples/voyconplan-ejemplo.pdf?v=2"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Abrir el PDF de ejemplo de VoyConPlan"
+        >
+          <img
+            src="/brand/pdf-preview-v2.png"
+            alt="Primera página del nuevo PDF de VoyConPlan, con fotografía, presupuesto y composición continua."
+            width={794}
+            height={1123}
+            loading="lazy"
+          />
         </a>
+      </section>
+      <section className="discovery-faq" aria-labelledby="home-faq-title">
+        <div>
+          <div className="eyebrow">TU VIAJE, MÁS CLARO</div>
+          <h2 id="home-faq-title">
+            Antes de hacer
+            <br />
+            las maletas.
+          </h2>
+        </div>
+        <div className="discovery-faq-items">
+          <details>
+            <summary>¿Por dónde empiezo si no tengo destino?</summary>
+            <p>
+              Explora el{' '}
+              <a href="/destinos">catálogo internacional de aeropuertos</a> por
+              región o país. Si quieres entender cómo se reparte un presupuesto,
+              prueba el simulador con sus seis destinos de ejemplo.
+            </p>
+          </details>
+          <details>
+            <summary>¿Qué precios estoy viendo?</summary>
+            <p>
+              El simulador de presupuesto utiliza costos y tipos de cambio DEMO.
+              El apartado <a href="/ofertas">Vuelos y ofertas</a> indica la
+              disponibilidad de la consulta, distingue las tarifas en vivo de
+              las pruebas y muestra cuándo se consultaron.
+            </p>
+          </details>
+          <details>
+            <summary>¿Puedo llevar mi plan sin conexión?</summary>
+            <p>
+              Descarga el PDF de tu viaje cuando esté preparado. Reúne el
+              itinerario, el presupuesto y los preparativos para llevarlos
+              contigo. Puedes abrir el ejemplo de arriba sin crear una cuenta.
+            </p>
+          </details>
+          <details>
+            <summary>¿Qué debo confirmar antes de viajar?</summary>
+            <p>
+              Comprueba el precio final y las condiciones de reserva con el
+              proveedor. Revisa también pasaporte, visado y requisitos de
+              tránsito en las fuentes oficiales del destino; dependen de tu
+              nacionalidad y tu ruta.
+            </p>
+          </details>
+        </div>
       </section>
       {comparison.length > 0 && (
         <div className="compare-bar">

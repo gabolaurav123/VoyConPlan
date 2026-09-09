@@ -12,10 +12,11 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "db:generate": "drizzle-kit generate",
-    "test": "node --experimental-strip-types --test tests/domain.test.mjs tests/sqlite.test.mjs tests/auth.test.mjs tests/postgres.test.mjs",
+    "test": "node --experimental-strip-types --test tests/domain.test.mjs tests/sqlite.test.mjs tests/auth.test.mjs tests/postgres.test.mjs tests/destinations.test.mjs tests/travel.test.mjs",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
     "test:api": "node --env-file=.env.local --experimental-strip-types tests/node-api.integration.mjs",
-    "test:pdf": "node --experimental-strip-types scripts/pdf-fixtures.mjs"
+    "test:pdf": "node --experimental-strip-types scripts/pdf-fixtures.mjs",
+    "destinations:update": "node scripts/update-destinations.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",

@@ -12,7 +12,7 @@ const out = resolve(root, process.env.PDF_QA_DIR || 'work/qa');
 await mkdir(out, { recursive: true });
 const optional = async (file) => { try { return new Uint8Array(await readFile(resolve(root, file))); } catch { return undefined; } };
 const [logo, editorial, photo, regular, semibold] = await Promise.all([
-  optional('public/brand/logo.png'), optional('public/brand/travel-editorial.png'), optional('public/images/cartagena.jpg'),
+  optional('public/brand/logo-v2.png'), optional('public/brand/travel-editorial.png'), optional('public/images/cartagena.jpg'),
   optional('public/fonts/pdf/Inter-Regular.ttf'), optional('public/fonts/pdf/Inter-Semibold.ttf'),
 ]);
 const options = {

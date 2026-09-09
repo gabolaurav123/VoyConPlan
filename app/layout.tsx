@@ -16,12 +16,12 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'VoyConPlan — Tu viaje, con plan.',
     description: 'Descubre destinos por presupuesto y organiza tu viaje.',
-    images: [{ url: '/brand/social-cover.png', width: 1774, height: 887 }],
+    images: [{ url: '/brand/social-cover-v2.png', width: 1774, height: 887 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'VoyConPlan — Tu viaje, con plan.',
-    images: ['/brand/social-cover.png'],
+    images: ['/brand/social-cover-v2.png'],
   },
 };
 export default function Layout({ children }: { children: React.ReactNode }) {

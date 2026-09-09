@@ -25,10 +25,11 @@ import {
   demoDestinations,
 } from '@/lib/domain';
 import {
-  providerList,
+  providerSummaries,
   essentialRequirements,
   unavailable,
 } from '@/lib/providers';
+import { getTravelService } from '@/lib/travel/service';
 export const dynamic = 'force-dynamic';
 const out = (data: unknown, status = 200) =>
   Response.json(data, {
@@ -52,7 +53,7 @@ async function handle(req: Request) {
           { id: 'Plus', price: 299, trip_limit: 10, collaborators: 3, features: ['Plan previsto', 'Pagos pendientes de integración'] },
           { id: 'Max', price: 499, trip_limit: 30, collaborators: 8, features: ['Plan previsto', 'Pagos pendientes de integración'] },
         ],
-        providers: providerList.map(([name, provider]) => ({ name, provider, status: 'No conectado' })),
+        providers: providerSummaries({ flights: getTravelService().status() }),
         databaseConfigured: false,
         notice: 'Vista DEMO. Guardar viajes e iniciar sesión estará disponible cuando se conecte la base de datos externa.',
       });
@@ -87,14 +88,7 @@ async function handle(req: Request) {
           ...p,
           features: JSON.parse(p.features),
         })),
-        providers: providerList.map(([name, provider]) => ({
-          name,
-          provider,
-          status:
-            name === 'Analytics'
-              ? 'Eventos con consentimiento'
-              : 'No conectado',
-        })),
+        providers: providerSummaries({ flights: getTravelService().status(), analyticsAvailable: true }),
       });
     }
     if (p[0] === 'discover' && method === 'POST') {
@@ -580,7 +574,10 @@ async function handle(req: Request) {
           events: counts[3].results[0].value,
           revenue: null,
           usage,
-          providersConnected: 0,
+          // Legacy numeric field counts configuration, never a verified upstream connection.
+          providersConnected: Number(getTravelService().status().available),
+          providersConfigured: Number(getTravelService().status().available),
+          providersConnectedMeaning: 'configured_not_verified',
         });
       }
       if (section === 'users') {
@@ -725,17 +722,7 @@ async function handle(req: Request) {
       }
       if (section === 'providers')
         return out(
-          providerList.map(([name, provider]) => ({
-            name,
-            provider,
-            status:
-              name === 'Analytics'
-                ? 'Eventos propios disponibles'
-                : 'No conectado',
-            lastCheck: null,
-            latency: null,
-            cost: null,
-          })),
+          providerSummaries({ flights: getTravelService().status(), analyticsAvailable: true }),
         );
       if (section === 'audit')
         return out(

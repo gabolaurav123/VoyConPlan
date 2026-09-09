@@ -36,6 +36,19 @@
     {
       "file": "family-trip.png",
       "prompt": "Use case: photorealistic-natural. Editorial travel inspiration photograph for VoyConPlan, horizontal 3:2. Two adults and two school-age children take an easy walk on a safe wide level trail beside a sunlit meadow and shallow creek, green hills and leafy trees. Fictional landscape. Premium candid travel magazine photography, natural textures, subtle film grain, warm morning light, gentle shadows. Forest green #173F35, lime #DBED9E and sand #F7F6EE in simple outdoor clothing, daypack, grass and stone. Family seen at a distance walking away, spontaneous, full bodies under one quarter of frame. No cliffs, risky paths, closeups, text, logos, brands, watermark or collage."
+    },
+    {
+      "file": "logo-v2.png",
+      "reference": "logo.png",
+      "prompt": "Edit the supplied logo: the existing route-shaped V symbol replaces the ordinary typographic V. The unified wordmark is the route V followed immediately by the exact suffix oyConPlan, one V only. Preserve the route loops and lime dot, forest green #173F35 and lime #DBED9E. Opaque cream background matching #F7F6EE, no checkerboard, mockup or extra text. Horizontal 3:1."
+    },
+    {
+      "file": "social-cover-v2.png",
+      "references": [
+        "social-cover.png",
+        "logo-v2.png"
+      ],
+      "prompt": "Replace only the old logo in the supplied cover with the unified route V plus oyConPlan wordmark. Preserve photograph, layout and exact text Tu viaje, con plan. and Descubre. Organiza. Disfruta. 2:1 horizontal cover."
     }
   ]
 }

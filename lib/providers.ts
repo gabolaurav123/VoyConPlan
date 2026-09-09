@@ -53,7 +53,7 @@ export interface AnalyticsProvider {
   track(input: Record<string, unknown>): Promise<Result<unknown>>;
 }
 export const providerList = [
-  ['Flights', 'Duffel / Amadeus'],
+  ['Flights', 'Duffel Flights v2'],
   ['Accommodation', 'Proveedor de alojamiento'],
   ['Places', 'Proveedor de lugares'],
   ['Activities', 'Proveedor de experiencias'],
@@ -68,6 +68,30 @@ export const providerList = [
   ['Affiliates', 'Redes de afiliados'],
   ['Analytics', 'Eventos propios'],
 ];
+/** Public configuration summary, not a provider connectivity or availability check. */
+export function providerSummaries({
+  flights,
+  analyticsAvailable = false,
+}: {
+  flights: { available: boolean; mode: 'live' | 'test' | 'unavailable' };
+  analyticsAvailable?: boolean;
+}) {
+  return providerList.map(([name, provider]) => ({
+    name,
+    provider,
+    status: name === 'Flights' && flights.available
+      ? flights.mode === 'test' ? 'Modo de prueba' : 'Configurado para consultas'
+      : name === 'Analytics' && analyticsAvailable ? 'Eventos con consentimiento' : 'No conectado',
+    // External providers other than Flights remain interface placeholders, even if an env key exists.
+    implemented: name === 'Flights' || name === 'Analytics',
+    configured: name === 'Flights' ? flights.available : name === 'Analytics' && analyticsAvailable,
+    mode: name === 'Flights' ? flights.mode : null,
+    verification: 'not_checked',
+    lastCheck: null,
+    latency: null,
+    cost: null,
+  }));
+}
 export function unavailable(name: string): Result<never> {
   return {
     ok: false,
@@ -77,11 +101,9 @@ export function unavailable(name: string): Result<never> {
       ': proveedor no conectado. No se ha consultado disponibilidad ni información en tiempo real.',
   };
 }
-export class DuffelAdapter implements FlightSearchProvider {
-  async search() {
-    return unavailable('Duffel');
-  }
-}
+// Duffel is implemented by lib/travel/service.ts and exposed only through
+// /api/travel/search, which enforces origin checks, limits, and response filtering.
+// The remaining adapter classes are placeholders, not integrations enabled by keys alone.
 export class AmadeusAdapter implements FlightSearchProvider {
   async search() {
     return unavailable('Amadeus');

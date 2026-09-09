@@ -1,19 +1,19 @@
 # Identidad visual de VoyConPlan
 
-Nombre exacto: **VoyConPlan**. Lema: **Tu viaje, con plan.**
+Nombre: VoyConPlan. Lema: Tu viaje, con plan.
+Paleta: verde bosque #173F35, lima #DBED9E, crema #F7F6EE.
 
-Paleta: verde bosque #173F35, lima suave #DBED9E, crema #F7F6EE. Logo horizontal con transparencia; símbolo de ruta y punto de llegada.
+## Versión actual
 
-| Archivo | Aplicación |
-| --- | --- |
-| logo.png | Cabecera, acceso, pie y PDF |
-| app-icon.png | Favicon y PWA |
-| social-cover.png | Vista previa de enlaces |
-| travel-editorial.png | Planificación, acceso y documento |
-| solo-trip.png | Viaje en solitario |
-| together-trip.png | Viaje en pareja |
-| family-trip.png | Viaje en familia |
+- logo-v2.png: símbolo de ruta usado como la V inicial, seguido de oyConPlan; cabecera, acceso, pie y PDF. PNG raster opaco sobre crema, no un vector editable ni un archivo con transparencia.
+- social-cover-v2.png: portada para enlaces con el mismo logo integrado.
+- app-icon.png: símbolo de ruta para favicon y PWA.
+- pdf-preview-v2.png: render de la primera página del PDF real de ejemplo, no un mockup generado.
+- travel-editorial.png: escena de planificación.
+- solo-trip.png, together-trip.png, family-trip.png: inspiración para distintas maneras de viajar.
 
-Creado el 9 de septiembre de 2026 con ImageGen integrado. Son escenas editoriales generadas, no fotografías de destinos verificados. Las fotos de destinos tienen atribución independiente.
+Creado y revisado el 9 de septiembre de 2026 con ImageGen integrado. Las escenas editoriales son generadas y no representan destinos verificados. Las fotografías de destinos conservan sus créditos en public/image-sources.json.
 
-Usar los archivos suministrados sin deformar el logo ni añadir sombras. El logo maestro es raster PNG; no se presenta como SVG vectorial editable.
+La revisión mantiene la familia de color y el símbolo. Usar el logo sobre fondos crema sin deformarlo ni añadir sombras. logo.png, social-cover.png y pdf-preview.png se conservan como versión anterior; los consumidores actuales usan los nombres v2 para renovar la caché.
+
+Los prompts de generación y revisión están en prompts.json.

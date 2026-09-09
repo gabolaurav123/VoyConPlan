@@ -32,7 +32,7 @@ export async function loadTripPdfAssets(destination: unknown, shareUrl?: string)
     ? destination as Record<string, unknown> : {};
   const path = localPath(data.image);
   const [logo, photo, editorial, regular, semibold] = await Promise.all([
-    bytes('/brand/logo.png'),
+    bytes('/brand/logo-v2.png'),
     path ? bytes(path) : Promise.resolve(undefined),
     bytes('/brand/travel-editorial.png'),
     bytes('/fonts/pdf/Inter-Regular.ttf'),

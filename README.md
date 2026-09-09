@@ -1,6 +1,6 @@
 # VoyConPlan
 
-Planificador de viajes con descubrimiento DEMO, itinerarios, gastos, checklist, documentos y administración. Node 24 con Vinext. La versión anterior de Sites permanece en el historial.
+Planificador de viajes con catálogo mundial, consulta de vuelos mediante Duffel, planificación DEMO, itinerarios, gastos, checklist, documentos y administración. Node 24 con Vinext. Web: https://voyconplan.seenode.app.
 
 ## Seenode: solo servicio web
 
@@ -12,15 +12,23 @@ Grupo **Gimnasio-del-Cerebro**, repositorio **gabolaurav123/VoyConPlan**, rama *
 - PostgreSQL externo mediante `DATABASE_URL`, marcada secreta.
 - Origen exacto en `APP_ORIGIN` y hostname en `VINEXT_TRUSTED_HOSTS`.
 
-Sin DATABASE_URL se puede explorar el catálogo DEMO y descargar el PDF de ejemplo. Las cuentas, el guardado y la administración necesitan conectar la base. En producción no se abre SQLite ni se guardan datos en disco efímero. Al conectar una base PostgreSQL vacía dedicada y desplegar de nuevo, el arranque aplica las migraciones.
+Sin DATABASE_URL se puede explorar el catálogo mundial, consultar vuelos si Duffel está habilitado y descargar el PDF de ejemplo. Las cuentas, el guardado y la administración necesitan conectar la base. En producción no se abre SQLite ni se guardan datos en disco efímero. Al conectar una base PostgreSQL vacía dedicada y desplegar de nuevo, el arranque aplica las migraciones.
 
 Configuración de TLS y operación: [docs/DESPLIEGUE-SEENODE.md](docs/DESPLIEGUE-SEENODE.md). seenode.json es una referencia humana, no un manifiesto nativo.
 
 ## Identidad y PDF
 
-Logo, icono de aplicación, portada social y cuatro escenas editoriales creados con ImageGen en public/brand. Verde bosque #173F35, lima #DBED9E y crema #F7F6EE. Los destinos conservan fotografías documentales y créditos en public/image-sources.json.
+Logo, icono de aplicación, portada social y cuatro escenas editoriales creados con ImageGen en public/brand. La revisión logo-v2.png integra el símbolo como la V de Voy: el texto restante es oyConPlan. Verde bosque #173F35, lima #DBED9E y crema #F7F6EE. Los destinos conservan fotografías documentales y créditos en public/image-sources.json.
 
 El PDF compone fotografía, resumen, presupuesto, reservas, itinerario y preparativos de manera continua. Los saltos dependen del espacio disponible. El ejemplo público usa el mismo constructor que los PDF de los viajes.
+
+## Destinos y ofertas
+
+/destinos permite buscar 4.079 aeropuertos de 233 países y territorios en la instantánea de OurAirports del 9 de septiembre de 2026. Incluye IATA y servicio regular declarado, no cada lugar ni todas las rutas comerciales. Fuente de dominio público, fecha, hash y licencia en lib/data/DESTINATIONS.md. Actualiza la instantánea con `npm run destinations:update` y revisa/commitea el cambio antes de desplegar.
+
+/ofertas incluye aeropuertos con autocompletado, fechas, pasajeros adultos, cabina, escalas, filtros y orden de tarifas, caducidad y actualización de consultas. La moneda es la devuelta por el proveedor: no se inventan conversiones ni descuentos. Hay enlaces separados a sitios oficiales de aerolíneas.
+
+Las consultas Duffel requieren DUFFEL_ACCESS_TOKEN live, DUFFEL_MODE=live y TRAVEL_SEARCH_ENABLED=true. Permanecen deshabilitadas por defecto y sin token; no hay ofertas reales precargadas. Caché hasta 90 segundos, caducidad del proveedor y límites por instancia. Las búsquedas pueden tener coste; límites y activación en [docs/TRAVEL-PROVIDERS.md](docs/TRAVEL-PROVIDERS.md). No se realizan reservas ni pagos y no se promete cobertura total de aerolíneas.
 
 ## Desarrollo local
 
@@ -35,11 +43,11 @@ DATABASE_URL reemplaza el almacenamiento local en producción. Nunca subir .env,
 
 ## Verificación
 
-`npm test` ejecuta pruebas de dominio, SQLite, autenticación y PostgreSQL. `npx tsc --noEmit` verifica tipos. `npm run build` compila cliente y servidor. Los tests usan datos sintéticos; PostgreSQL se valida con PGlite. Falta comprobar TLS, red y concurrencia de conexiones con el proveedor real.
+`npm test` ejecuta pruebas de dominio, SQLite, autenticación, PostgreSQL, catálogo mundial y servicio de tarifas. `npx tsc --noEmit` verifica tipos. `npm run build` compila cliente y servidor. Los tests usan datos sintéticos; PostgreSQL se valida con PGlite y Duffel con respuestas controladas. Falta comprobar credenciales, tarifas y conectividad de los proveedores reales.
 
 ## Alcance
 
-Costos, cambio de moneda, tiempos de vuelo y afinidad usan un catálogo DEMO de seis destinos. Disponibilidad, requisitos migratorios, clima, IA, cobros y correo no están conectados. Los proveedores requieren implementación además de claves. No se generan reservas reales.
+El planificador por presupuesto sigue usando costos, cambio de moneda, tiempos de vuelo y afinidad DEMO de seis destinos. Está separado del catálogo mundial y del buscador de vuelos. Requisitos migratorios, alojamiento, clima, IA, cobros y correo aún requieren integración; no basta con añadir sus claves. El servicio Duffel sí está implementado, pero necesita su cuenta y token para consultar precios reales. No se generan reservas reales.
 
 No existe verificación ni recuperación de contraseña por email. Las sesiones se pueden revocar y el correo administrativo por sí solo no concede privilegios. Los enlaces de lectura omiten datos privados y pueden caducar o revocarse. La PWA no almacena APIs privadas.
 

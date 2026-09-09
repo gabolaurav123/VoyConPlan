@@ -341,10 +341,15 @@ export default function Admin() {
                     <span className="pill amber">DEMO</span>
                   </div>
                   <div className="expense-row">
-                    <span>APIs de viaje y cobros</span>
+                    <span>Proveedores configurados</span>
+                    <span className="pill amber">{data.providersConfigured ?? data.providersConnected ?? 0}</span>
+                  </div>
+                  <div className="expense-row">
+                    <span>Cobros</span>
                     <span className="pill amber">Sin conectar</span>
                   </div>
                   <p className="notice-text">
+                    La configuración no confirma disponibilidad de rutas ni tarifas.
                     No se generan ingresos, costos ni actividad ficticios.
                   </p>
                 </section>

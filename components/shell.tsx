@@ -1,16 +1,11 @@
 'use client';
-import {
-  ArrowUpRight,
-  Globe,
-  LogIn,
-  ShieldCheck,
-  LoaderCircle,
-} from 'lucide-react';
+import { ArrowUpRight, LogIn, ShieldCheck, LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Toaster } from '@/components/ui/toast';
 import { toast } from '@/lib/toast';
 import { usePathname } from 'next/navigation';
 import BrandLogo from './brand-logo';
+import './travel-discovery.css';
 import {
   Dialog,
   DialogContent,
@@ -162,14 +157,23 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         <a className="brand" href="/">
           <BrandLogo />
         </a>
-        <nav>
+        <nav aria-label="Navegación principal">
           {[
             ['/', 'Explorar'],
+            ['/destinos', 'Destinos'],
+            ['/ofertas', 'Ofertas'],
             ['/viajes', 'Mis viajes'],
-            ['/favoritos', 'Algún día'],
-            ['/planes', 'Planes'],
           ].map(([href, label]) => (
-            <a key={href} className={path === href ? 'active' : ''} href={href}>
+            <a
+              key={href}
+              className={
+                path === href || (href !== '/' && path?.startsWith(href + '/'))
+                  ? 'active'
+                  : ''
+              }
+              aria-current={path === href ? 'page' : undefined}
+              href={href}
+            >
               {label}
             </a>
           ))}
@@ -191,6 +195,12 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             <BrandLogo />
           </a>
           <span>Tu viaje, con plan.</span>
+          <div className="footer-extra-links">
+            <a href="/destinos">Destinos</a>
+            <a href="/ofertas">Vuelos y ofertas</a>
+            <a href="/favoritos">Algún día</a>
+            <a href="/planes">Planes</a>
+          </div>
           <a href="/blog">Guías</a>
           <a href="/soporte">Ayuda</a>
           <a href="/privacidad">Privacidad</a>
