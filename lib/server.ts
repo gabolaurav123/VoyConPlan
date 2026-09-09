@@ -1,14 +1,8 @@
-import { env } from 'cloudflare:workers';
+import { getNodeDb } from '@/db/node';
 import { getChatGPTUser } from '@/app/chatgpt-auth';
 import { demoDestinations } from './domain';
-export const runtime = env as unknown as {
-  DB: D1Database;
-  ADMIN_EMAILS?: string;
-  APP_ORIGIN?: string;
-  MEDIA?: R2Bucket;
-  [key: string]: unknown;
-};
-export const db = () => runtime.DB;
+export const runtime = process.env;
+export const db = getNodeDb;
 export class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -113,14 +107,9 @@ export async function currentUser(required = false) {
       403,
       'Esta cuenta está suspendida. Contacta con soporte.',
     );
-  const superAdmin = String(runtime.ADMIN_EMAILS || '')
-    .toLowerCase()
-    .split(',')
-    .map((s) => s.trim())
-    .includes(auth.email.toLowerCase());
   return {
     ...user,
-    role: superAdmin ? 'super_admin' : user.role,
+    role: user.role,
     profile: JSON.parse(user.profile),
   };
 }
@@ -176,12 +165,13 @@ export async function getTrip(tripId: string, user: any, ownerOnly = false) {
     throw new ApiError(404, 'No encontramos este viaje o no tienes acceso.');
   return { ...row, data: JSON.parse(row.data) };
 }
-export async function rateLimit(req: Request) {
-  const ip = req.headers.get('cf-connecting-ip') || 'local';
+export async function rateLimit(_req: Request) {
+  const session = await getChatGPTUser();
+  // Public discovery uses bounded local data. One visitor must not exhaust everyone's bucket.
+  // Authentication has separate limits; private routes require a verified session.
+  if (!session) return;
   const identity = await hash(
-    (req.headers.get('oai-authenticated-user-id') || ip) +
-      ':' +
-      Math.floor(Date.now() / 60000),
+    session.userId + ':' + Math.floor(Date.now() / 60000),
   );
   const row: any = await db()
     .prepare(
@@ -202,7 +192,9 @@ export async function rateLimit(req: Request) {
 }
 export async function body(req: Request) {
   const origin = req.headers.get('origin'),
-    expected = runtime.APP_ORIGIN || new URL(req.url).origin;
+    expected =
+      runtime.APP_ORIGIN ||
+      (process.env.NODE_ENV === 'production' ? '' : new URL(req.url).origin);
   if (!origin || origin !== expected)
     throw new ApiError(403, 'Origen de la solicitud no permitido.');
   if (!req.headers.get('content-type')?.startsWith('application/json'))

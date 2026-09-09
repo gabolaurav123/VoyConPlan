@@ -1,19 +1,20 @@
 {
-  "name": "sites-project",
+  "name": "voyconplan",
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=24.0.0 <25"
   },
   "scripts": {
-    "dev": "vinext dev",
+    "dev": "node --env-file-if-exists=.env.local scripts/migrate.mjs && vinext dev",
     "build": "vinext build",
-    "start": "wrangler dev --config dist/server/wrangler.json",
+    "start": "node --env-file-if-exists=.env.local scripts/migrate.mjs && vinext start --hostname 0.0.0.0 --port 3000",
     "lint": "oxlint",
     "format": "oxfmt",
     "db:generate": "drizzle-kit generate",
-    "test": "node --experimental-strip-types --test tests/domain.test.mjs",
-    "db:local": "wrangler d1 migrations apply DB --local --config wrangler.local.json"
+    "test": "node --experimental-strip-types --test tests/domain.test.mjs tests/sqlite.test.mjs tests/auth.test.mjs",
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
+    "test:api": "node --env-file=.env.local --experimental-strip-types tests/node-api.integration.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
@@ -41,12 +42,9 @@
     "vinext": "1.0.0-beta.6"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "1.54.6",
-    "@cloudflare/workers-types": "5.20260908.1",
-    "@openai/sites-vite-plugin": "0.2.0",
     "@tailwindcss/postcss": "4.2.1",
     "@types/leaflet": "^1.9.22",
-    "@types/node": "22.19.19",
+    "@types/node": "^24.0.0",
     "@types/qrcode": "^1.5.6",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
@@ -58,13 +56,7 @@
     "oxlint-tsgolint": "7.0.2001",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
-    "vite": "8.0.16",
-    "wrangler": "4.130.0"
+    "vite": "8.0.16"
   },
-  "type": "module",
-  "overrides": {
-    "miniflare": {
-      "sharp": "0.35.4"
-    }
-  }
+  "type": "module"
 }

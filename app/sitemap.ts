@@ -1,7 +1,7 @@
 import { db, initialize } from '@/lib/server';
 export default async function sitemap() {
   await initialize();
-  const base = 'https://voyconplan.gabolaurav2.chatgpt.site';
+  const base = process.env.APP_ORIGIN || 'http://localhost:3000';
   const posts = await db()
     .prepare('SELECT slug FROM content WHERE status=?')
     .bind('Publicado')

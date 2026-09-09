@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     'Descubre hasta dónde puedes viajar con tu presupuesto. Organiza tu itinerario, gastos y preparativos en un solo lugar.',
   manifest: '/manifest.webmanifest',
   icons: { icon: '/favicon.svg', apple: '/icon-192.png' },
-  metadataBase: new URL('https://voyconplan.gabolaurav2.chatgpt.site'),
+  metadataBase: new URL(process.env.APP_ORIGIN || 'http://localhost:3000'),
   openGraph: {
     title: 'VoyConPlan — Tu viaje, con plan.',
     description: 'Descubre destinos por presupuesto y organiza tu viaje.',

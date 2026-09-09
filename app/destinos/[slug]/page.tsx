@@ -24,13 +24,13 @@ export async function generateMetadata({
           title: d.name + ' | VoyConPlan',
           description: d.description,
           images: [
-            { url: 'https://voyconplan.gabolaurav2.chatgpt.site' + d.image },
+            { url: (process.env.APP_ORIGIN || 'http://localhost:3000') + d.image },
           ],
         },
         twitter: {
           title: d.name + ' | VoyConPlan',
           description: d.description,
-          images: ['https://voyconplan.gabolaurav2.chatgpt.site' + d.image],
+          images: [(process.env.APP_ORIGIN || 'http://localhost:3000') + d.image],
         },
       }
     : { title: 'Destino no encontrado' };

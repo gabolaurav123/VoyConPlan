@@ -38,7 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { api, Loading, notify, Modal, SignIn } from './shell';
+import { api, Loading, notify, Modal, SignIn, logout } from './shell';
 import { Pick } from './explore';
 import { download } from '@/lib/export';
 import { toast } from '@/lib/toast';
@@ -134,13 +134,9 @@ export default function Admin() {
           Tu cuenta no tiene permisos de administración. Inicia sesión con el
           correo autorizado.
         </p>
-        <a
-          target="_top"
-          className="btn outline"
-          href="/signout-with-chatgpt?return_to=%2Fadmin"
-        >
+        <button className="btn outline" onClick={() => void logout('/admin')}>
           Cambiar de cuenta
-        </a>
+        </button>
       </div>
     );
   const title = sections.find((s) => s[0] === section)?.[1] || 'Administración',

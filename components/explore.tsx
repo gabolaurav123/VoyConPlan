@@ -169,8 +169,7 @@ export default function Explore() {
       toast('Inicia sesión para guardar tus destinos.', {
         action: {
           label: 'Entrar',
-          onClick: () =>
-            location.assign('/signin-with-chatgpt?return_to=%2Ffavoritos'),
+          onClick: () => location.assign('/entrar?return_to=%2Ffavoritos'),
         },
       });
       return;
@@ -197,7 +196,7 @@ export default function Explore() {
     };
     if (!user) {
       sessionStorage.setItem('vcp-draft', JSON.stringify(creation));
-      location.assign('/signin-with-chatgpt?return_to=%2Fviajes%3Fcrear%3D1');
+      location.assign('/entrar?return_to=%2Fviajes%3Fcrear%3D1');
       return;
     }
     setBusy(true);

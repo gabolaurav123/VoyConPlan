@@ -468,7 +468,7 @@ async function handle(req: Request) {
       await db().batch([
         db()
           .prepare(
-            'INSERT OR IGNORE INTO members(id,trip_id,user_id,preferences) SELECT ?,?,?,? WHERE (SELECT COUNT(*) FROM members WHERE trip_id=? AND user_id<>?)<? AND EXISTS(SELECT 1 FROM share_links WHERE id=? AND revoked=0 AND julianday(expires_at)>julianday("now") AND (claimed_by IS NULL OR claimed_by=?))',
+            'INSERT OR IGNORE INTO members(id,trip_id,user_id,preferences) SELECT ?,?,?,? WHERE (SELECT COUNT(*) FROM members WHERE trip_id=? AND user_id<>?)<? AND EXISTS(SELECT 1 FROM share_links WHERE id=? AND revoked=0 AND julianday(expires_at)>julianday() AND (claimed_by IS NULL OR claimed_by=?))',
           )
           .bind(
             row.trip_id + ':' + user.id,

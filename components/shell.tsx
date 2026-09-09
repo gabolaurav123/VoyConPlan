@@ -43,6 +43,14 @@ export async function api(
     );
   return value;
 }
+export async function logout(returnTo = '/') {
+  try {
+    await api('auth/logout', 'POST', {});
+    location.assign('/entrar?return_to=' + encodeURIComponent(returnTo));
+  } catch (e) {
+    notify(e);
+  }
+}
 export function notify(error: unknown) {
   toast.error(
     error instanceof Error
@@ -97,9 +105,9 @@ export function SignIn({ returnTo = '/viajes' }: { returnTo?: string }) {
       <a
         className="btn lime"
         target="_top"
-        href={'/signin-with-chatgpt?return_to=' + encodeURIComponent(returnTo)}
+        href={'/entrar?return_to=' + encodeURIComponent(returnTo)}
       >
-        Continuar con ChatGPT <ArrowUpRight size={17} />
+        Entrar a mi cuenta <ArrowUpRight size={17} />
       </a>
       <a href="/">Seguir explorando</a>
     </div>

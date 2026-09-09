@@ -1,0 +1,13 @@
+{
+  "name":"VoyConPlan",
+  "runtime":"Node 24",
+  "branch":"main",
+  "rootDirectory":"",
+  "buildCommand":"npm ci --include=dev && npm run build",
+  "runCommand":"npm start",
+  "port":3000,
+  "replicas":1,
+  "persistentStorage":{"mountPath":"/data","sizeGB":5},
+  "healthPath":"/api/health",
+  "note":"Documented configuration; configure these fields in the Seenode dashboard. This file is not a native Seenode manifest."
+}

@@ -14,7 +14,15 @@ import {
   Send,
 } from 'lucide-react';
 import { toast } from '@/lib/toast';
-import Shell, { api, notify, Loading, SignIn, Modal, track } from './shell';
+import Shell, {
+  api,
+  notify,
+  Loading,
+  SignIn,
+  Modal,
+  track,
+  logout,
+} from './shell';
 import Trip from './trip';
 import Admin from './admin';
 import { Pick, Toggle } from './explore';
@@ -311,14 +319,10 @@ function General({ path }: { path: string }) {
               {boot.user.email} · Plan {boot.user.plan}
             </p>
           </div>
-          <a
-            className="btn outline small"
-            target="_top"
-            href="/signout-with-chatgpt?return_to=%2F"
-          >
+          <button className="btn outline small" onClick={() => void logout()}>
             <LogOut size={16} />
             Cerrar sesión
-          </a>
+          </button>
         </div>
         <form
           className="panel form-stack account-form"
@@ -453,7 +457,7 @@ function General({ path }: { path: string }) {
                   await api('me', 'DELETE', {
                     confirm: new FormData(e.currentTarget).get('confirm'),
                   });
-                  location.assign('/signout-with-chatgpt?return_to=%2F');
+                  await logout();
                 } catch (e) {
                   notify(e);
                 }
@@ -596,13 +600,13 @@ function General({ path }: { path: string }) {
         'La analítica opcional registra eventos permitidos sólo con consentimiento. No se cargan rastreadores publicitarios. Puedes gestionar tu elección desde Mi cuenta. El sitio emplea almacenamiento necesario para mantener preferencias y borradores temporales.',
         'Los enlaces de lectura excluyen códigos de reserva, gastos y notas privadas, y vencen en siete días. Quien tenga acceso al enlace y al sitio puede ver el itinerario compartido.',
         'Puedes descargar tus datos y solicitar la eliminación desde Mi cuenta. La retención administrativa, los responsables legales y los derechos por jurisdicción deben definirse antes de la apertura comercial.',
-        'El mapa usa OpenStreetMap y puede enviar tu dirección IP al proveedor de mosaicos al abrirse. Las fotografías se alojan en el sitio. Los datos de acceso son gestionados por Sites.',
+        'El mapa usa OpenStreetMap y puede enviar tu dirección IP al proveedor de mosaicos al abrirse. Las fotografías se alojan en el sitio. Las contraseñas se guardan mediante hash scrypt y las sesiones se mantienen en cookies protegidas y revocables. El correo no se verifica ni permite recuperación automática en esta versión.',
       ],
     ],
     '/terminos': [
       'Términos de uso',
       [
-        'Borrador para revisión jurídica. VoyConPlan está en desarrollo privado y no presta un servicio de reserva ni vende pasajes en esta versión.',
+        'Borrador para revisión jurídica. VoyConPlan está en fase inicial de desarrollo y no presta un servicio de reserva ni vende pasajes en esta versión.',
         'El catálogo inicial contiene precios, tiempos de vuelo y tipos de cambio DEMO. No son ofertas, cotizaciones ni garantías de disponibilidad. No tomes decisiones de compra basándote en ellos.',
         'Los requisitos de entrada, tránsito y salud no se han verificado. Antes de viajar consulta organismos oficiales, consulados y tu transportista. La falta de una advertencia no confirma que el viaje sea admisible.',
         'Los itinerarios combinan bloques orientativos y datos que introduces. Debes comprobar horarios, traslados, reservas y accesibilidad.',
@@ -672,7 +676,7 @@ function Shared({ token }: { token: string }) {
               const b = await api('bootstrap');
               if (!b.user) {
                 location.assign(
-                  '/signin-with-chatgpt?return_to=' +
+                  '/entrar?return_to=' +
                     encodeURIComponent('/compartir/' + token),
                 );
                 return;
