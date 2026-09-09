@@ -1,6 +1,8 @@
 # Despliegue web en Seenode
 
 Destino solicitado: grupo Gimnasio-del-Cerebro, repositorio gabolaurav123/VoyConPlan, rama main.
+Servicio web creado: 974919. Dominio asignado: https://voyconplan.seenode.app.
+Panel: https://seenode.com/dashboard/applications/web?applicationId=974919.
 Se despliega únicamente el servicio web. No crear base de datos ni volumen en Seenode.
 El usuario conectará una base PostgreSQL externa mediante variables de entorno.
 
@@ -19,8 +21,8 @@ Sin DATABASE_URL el arranque deja constancia del modo DEMO. La portada, catálog
 ## Variables
 
 NODE_ENV=production
-APP_ORIGIN=origen HTTPS exacto entregado por Seenode, sin barra final
-VINEXT_TRUSTED_HOSTS=hostname exacto de ese origen
+APP_ORIGIN=https://voyconplan.seenode.app
+VINEXT_TRUSTED_HOSTS=voyconplan.seenode.app
 ADMIN_EMAILS=gabolaurav@gmail.com
 ADMIN_SETUP_TOKEN=token aleatorio de32bytes base64url, secreto
 DATABASE_URL=postgresql://usuario:contraseña@host:puerto/base
@@ -29,6 +31,8 @@ DATABASE_POOL_MAX=5
 DATABASE_SSL_CA=certificado CA PEM opcional del proveedor
 
 DATABASE_URL y ADMIN_SETUP_TOKEN son secretos. Nunca se incluyen en Git ni en registros. Cuando el usuario facilite su PostgreSQL, debe proporcionar una base ya creada y permisos para crear tablas, índices y ejecutar sus migraciones. No se admite una URL MySQL. Si el proveedor usa PgBouncer, usar una conexión directa o session pooling para migrar: el migrador mantiene un advisory lock de sesión. La aplicación usa conexiones del pool con cada transacción completa en un mismo cliente.
+
+El formulario de Seenode rechaza variables con valor vacío. DATABASE_URL queda sin añadir hasta disponer de la conexión real: añadirla en Entornos y marcarla como secreto. Las opciones SSL y del pool ya están preparadas. No introducir una URL ficticia, pues impediría el arranque.
 
 TLS verifica el certificado y hostname por defecto, incluso si la URL contiene sslmode=require. Los parámetros SSL de la URL se normalizan para evitar que sobrescriban esta verificación. Para una CA privada, configurar DATABASE_SSL_CA con PEM completo. DATABASE_SSL_MODE=disable desactiva TLS solo por configuración explícita; reservarlo para una conexión local o privada de confianza. No se desactiva validación de certificados automáticamente.
 
@@ -53,5 +57,5 @@ El catálogo y los costos siguen siendo DEMO. Servicios turísticos, IA, email y
 
 ## Coste y fuentes
 
-Solo servicio web Basic, según el precio mostrado en el panel. No se contrata volumen ni DB Seenode. Los costes de una base externa serán los de su proveedor.
+Solo servicio web Basic, 512 MB, una réplica. El panel mostró 4 USD/mes el 9 de septiembre de 2026. No se contrata volumen ni DB Seenode. Los costes de una base externa serán los de su proveedor.
 [Seenode Node y runtime](https://seenode.com/docs/reference/runtimes), [puerto](https://seenode.com/docs/how-to/configure/port), [TLS node-postgres](https://node-postgres.com/features/ssl), [transacciones node-postgres](https://node-postgres.com/features/transactions), [aislamiento PostgreSQL](https://www.postgresql.org/docs/current/transaction-iso.html).
