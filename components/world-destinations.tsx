@@ -233,7 +233,7 @@ export default function WorldDestinations() {
               ? 'Buscando lugares…'
               : error
                 ? 'Volvamos a intentarlo'
-                : `${formatCount(catalog?.pagination.total || 0)} aeropuertos para explorar`}
+                : `${formatCount(catalog?.pagination.total || 0)} ${catalog?.pagination.total === 1 ? 'aeropuerto' : 'aeropuertos'} para explorar`}
           </h3>
           <span aria-live="polite">
             {loading ? (
@@ -346,8 +346,7 @@ export default function WorldDestinations() {
             <a href={catalog.source.url} target="_blank" rel="noreferrer">
               {catalog.source.name} <ArrowUpRight size={12} />
             </a>
-            . {catalog.source.coverage} La presencia de un aeropuerto no
-            garantiza rutas o tarifas disponibles. Datos consultados el{' '}
+            . {catalog.source.coverage} Datos consultados el{' '}
             {new Date(catalog.source.downloadedAt).toLocaleDateString('es-ES', {
               day: 'numeric',
               month: 'long',
