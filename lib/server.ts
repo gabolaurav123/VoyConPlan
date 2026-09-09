@@ -28,7 +28,7 @@ export async function initialize() {
     ...demoDestinations.map((d) =>
       db()
         .prepare(
-          'INSERT OR IGNORE INTO destinations (id,data,hidden) VALUES (?,?,0)',
+          'INSERT INTO destinations (id,data,hidden) VALUES (?,?,0) ON CONFLICT DO NOTHING',
         )
         .bind(d.id, JSON.stringify(d)),
     ),
@@ -75,7 +75,7 @@ export async function initialize() {
     ].map((p: any) =>
       db()
         .prepare(
-          'INSERT OR IGNORE INTO plans (id,price,trip_limit,collaborators,features) VALUES (?,?,?,?,?)',
+          'INSERT INTO plans (id,price,trip_limit,collaborators,features) VALUES (?,?,?,?,?) ON CONFLICT DO NOTHING',
         )
         .bind(p[0], p[1], p[2], p[3], JSON.stringify(p[4])),
     ),
@@ -175,7 +175,7 @@ export async function rateLimit(_req: Request) {
   );
   const row: any = await db()
     .prepare(
-      'INSERT INTO rate_limits(id,count,expires) VALUES (?,1,?) ON CONFLICT(id) DO UPDATE SET count=count+1 RETURNING count',
+      'INSERT INTO rate_limits(id,count,expires) VALUES (?,1,?) ON CONFLICT(id) DO UPDATE SET count=rate_limits.count+1 RETURNING count',
     )
     .bind(identity, Date.now() + 120000)
     .first();

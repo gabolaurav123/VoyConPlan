@@ -1,8 +1,10 @@
 import { db, initialize } from '@/lib/server';
+import { databaseConfigured } from '@/db';
 import Shell from '@/components/shell';
 import { notFound } from 'next/navigation';
 export const dynamic = 'force-dynamic';
 async function post(slug: string) {
+  if (!databaseConfigured()) return null;
   await initialize();
   return await db()
     .prepare('SELECT * FROM content WHERE slug=? AND status=?')

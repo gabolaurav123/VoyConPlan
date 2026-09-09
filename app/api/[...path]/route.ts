@@ -13,6 +13,7 @@ import {
   rateLimit,
   body,
 } from '@/lib/server';
+import { databaseConfigured, DatabaseNotConfiguredError } from '@/db/node';
 import {
   validateSearch,
   discover,
@@ -21,6 +22,7 @@ import {
   sharedProjection,
   validNumber,
   preferenceMatches,
+  demoDestinations,
 } from '@/lib/domain';
 import {
   providerList,
@@ -41,6 +43,28 @@ const clean = (v: any, max = 1000) =>
   typeof v === 'string' ? v.trim().slice(0, max) : '';
 async function handle(req: Request) {
   try {
+    if (!databaseConfigured()) {
+      const path = new URL(req.url).pathname.slice(5).split('/');
+      if (req.method === 'GET' && path[0] === 'bootstrap') return out({
+        user: null, destinations: demoDestinations,
+        plans: [
+          { id: 'Free', price: 0, trip_limit: 2, collaborators: 1, features: ['Descubrimiento DEMO', 'Guardado disponible al conectar la base de datos'] },
+          { id: 'Plus', price: 299, trip_limit: 10, collaborators: 3, features: ['Plan previsto', 'Pagos pendientes de integración'] },
+          { id: 'Max', price: 499, trip_limit: 30, collaborators: 8, features: ['Plan previsto', 'Pagos pendientes de integración'] },
+        ],
+        providers: providerList.map(([name, provider]) => ({ name, provider, status: 'No conectado' })),
+        databaseConfigured: false,
+        notice: 'Vista DEMO. Guardar viajes e iniciar sesión estará disponible cuando se conecte la base de datos externa.',
+      });
+      if (req.method === 'POST' && path[0] === 'discover') {
+        const search = validateSearch(await body(req));
+        return out({ results: discover(demoDestinations, search), search, mode: 'demo', databaseConfigured: false });
+      }
+      if (req.method === 'GET' && path[0] === 'requirements') return out({ status: 'unknown', items: essentialRequirements(), checkedAt: null, notice: 'Requisitos sin consulta oficial. Comprueba las fuentes oficiales antes de viajar.' });
+      if (req.method === 'GET' && path[0] === 'content') return out([]);
+      if (path[0] === 'provider') return out(unavailable(path[1] || 'Proveedor'), 503);
+      throw new DatabaseNotConfiguredError();
+    }
     await initialize();
     await rateLimit(req);
     const url = new URL(req.url),
@@ -57,6 +81,7 @@ async function handle(req: Request) {
         .all();
       return out({
         user,
+        databaseConfigured: true,
         destinations: ds.results.map((d: any) => JSON.parse(d.data)),
         plans: plans.results.map((p: any) => ({
           ...p,
@@ -217,7 +242,7 @@ async function handle(req: Request) {
       if (method === 'POST')
         await db()
           .prepare(
-            'INSERT OR IGNORE INTO favorites(id,user_id,destination_id) VALUES (?,?,?)',
+            'INSERT INTO favorites(id,user_id,destination_id) VALUES (?,?,?) ON CONFLICT DO NOTHING',
           )
           .bind(user.id + ':' + data.destinationId, user.id, data.destinationId)
           .run();
@@ -279,12 +304,12 @@ async function handle(req: Request) {
       await db().batch([
         db()
           .prepare(
-            'INSERT OR IGNORE INTO usage(id,user_id,used) VALUES (?,?,0)',
+            'INSERT INTO usage(id,user_id,used) VALUES (?,?,0) ON CONFLICT DO NOTHING',
           )
           .bind(key, user.id),
         db()
           .prepare(
-            'INSERT OR IGNORE INTO trips(id,owner_id,data,created_at,updated_at) SELECT ?,?,?,?,? WHERE (SELECT used FROM usage WHERE id=?)<?',
+            'INSERT INTO trips(id,owner_id,data,created_at,updated_at) SELECT ?,?,?,?,? WHERE (SELECT used FROM usage WHERE id=?)<? ON CONFLICT DO NOTHING',
           )
           .bind(
             tripId,
@@ -302,7 +327,7 @@ async function handle(req: Request) {
           .bind(key, tripId, requestId),
         db()
           .prepare(
-            'INSERT OR IGNORE INTO records(id,kind,owner_id,data,created_at) SELECT ?,?,?,?,? WHERE EXISTS(SELECT 1 FROM trips WHERE id=?)',
+            'INSERT INTO records(id,kind,owner_id,data,created_at) SELECT ?,?,?,?,? WHERE EXISTS(SELECT 1 FROM trips WHERE id=?) ON CONFLICT DO NOTHING',
           )
           .bind(
             requestId,
@@ -468,7 +493,7 @@ async function handle(req: Request) {
       await db().batch([
         db()
           .prepare(
-            'INSERT OR IGNORE INTO members(id,trip_id,user_id,preferences) SELECT ?,?,?,? WHERE (SELECT COUNT(*) FROM members WHERE trip_id=? AND user_id<>?)<? AND EXISTS(SELECT 1 FROM share_links WHERE id=? AND revoked=0 AND julianday(expires_at)>julianday() AND (claimed_by IS NULL OR claimed_by=?))',
+            'INSERT INTO members(id,trip_id,user_id,preferences) SELECT ?,?,?,? WHERE (SELECT COUNT(*) FROM members WHERE trip_id=? AND user_id<>?)<? AND EXISTS(SELECT 1 FROM share_links WHERE id=? AND revoked=0 AND expires_at>? AND (claimed_by IS NULL OR claimed_by=?)) ON CONFLICT DO NOTHING',
           )
           .bind(
             row.trip_id + ':' + user.id,
@@ -479,6 +504,7 @@ async function handle(req: Request) {
             trip.owner_id,
             trip.collaborators,
             row.id,
+            now(),
             user.id,
           ),
         db()
@@ -806,6 +832,7 @@ async function handle(req: Request) {
     }
     throw new ApiError(404, 'Función no disponible.');
   } catch (error) {
+    if (error instanceof DatabaseNotConfiguredError) return out({ error: 'El guardado todavía no está disponible. Puedes seguir explorando y descargar el PDF de ejemplo.', code: error.code }, 503);
     if (error instanceof ApiError)
       return out({ error: error.message }, error.status);
     if (

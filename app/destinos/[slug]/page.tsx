@@ -1,8 +1,11 @@
 import { db, initialize } from '@/lib/server';
+import { databaseConfigured } from '@/db';
+import { demoDestinations } from '@/lib/domain';
 import Shell from '@/components/shell';
 import { notFound } from 'next/navigation';
 export const dynamic = 'force-dynamic';
 async function destination(slug: string) {
+  if (!databaseConfigured()) return demoDestinations.find(d => d.id === slug) || null;
   await initialize();
   const row = await db()
     .prepare('SELECT data FROM destinations WHERE id=? AND hidden=0')

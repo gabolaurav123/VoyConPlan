@@ -5,7 +5,7 @@ import { join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
 import { spawnSync } from 'node:child_process';
-import { openNodeDatabase, resolveDatabasePath } from '../db/node.ts';
+import { openNodeDatabase, resolveDatabasePath, databaseConfigured, getNodeDb } from '../db/node.ts';
 import { migrateDatabaseFile, migrationDatabasePath } from '../scripts/migrate.mjs';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
@@ -165,11 +165,23 @@ test('production path validation fails closed and importing does not create a fi
   assert.equal(existsSync(f.path), false);
   const previousPath = process.env.DATABASE_PATH;
   const previousMode = process.env.NODE_ENV;
+  const previousUrl = process.env.DATABASE_URL;
   try {
     process.env.NODE_ENV = 'production';
     delete process.env.DATABASE_PATH;
-    assert.throws(resolveDatabasePath, /required in production/);
-    assert.throws(migrationDatabasePath, /required in production/);
+    delete process.env.DATABASE_URL;
+    assert.equal(databaseConfigured(), false);
+    assert.throws(getNodeDb, (error) => error.code === 'DATABASE_NOT_CONFIGURED');
+    assert.throws(resolveDatabasePath, /disabled in production/);
+    assert.throws(migrationDatabasePath, /disabled in production/);
+    process.env.DATABASE_PATH = f.path;
+    assert.throws(getNodeDb, (error) => error.code === 'DATABASE_NOT_CONFIGURED');
+    assert.throws(resolveDatabasePath, /disabled in production/);
+    const startup = spawnSync(process.execPath, [resolve(projectRoot, 'scripts/migrate.mjs')], { env: process.env, encoding: 'utf8' });
+    assert.equal(startup.status, 0, startup.stderr);
+    assert.match(startup.stdout, /No local database will be created/);
+    assert.equal(existsSync(f.path), false);
+    process.env.NODE_ENV = 'development';
     process.env.DATABASE_PATH = 'relative.sqlite';
     assert.throws(resolveDatabasePath, /absolute/);
     assert.throws(migrationDatabasePath, /absolute/);
@@ -179,5 +191,6 @@ test('production path validation fails closed and importing does not create a fi
   } finally {
     if (previousPath === undefined) delete process.env.DATABASE_PATH; else process.env.DATABASE_PATH = previousPath;
     if (previousMode === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = previousMode;
+    if (previousUrl === undefined) delete process.env.DATABASE_URL; else process.env.DATABASE_URL = previousUrl;
   }
 });

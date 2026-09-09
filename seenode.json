@@ -1,13 +1,18 @@
 {
-  "name":"VoyConPlan",
-  "runtime":"Node 24",
-  "branch":"main",
-  "rootDirectory":"",
-  "buildCommand":"npm ci --include=dev && npm run build",
-  "runCommand":"npm start",
-  "port":3000,
-  "replicas":1,
-  "persistentStorage":{"mountPath":"/data","sizeGB":5},
-  "healthPath":"/api/health",
-  "note":"Documented configuration; configure these fields in the Seenode dashboard. This file is not a native Seenode manifest."
+  "name": "VoyConPlan",
+  "runtime": "Node 24",
+  "branch": "main",
+  "rootDirectory": "",
+  "buildCommand": "npm ci --include=dev && npm run build",
+  "runCommand": "npm start",
+  "port": 3000,
+  "replicas": 1,
+  "persistentStorage": null,
+  "externalDatabase": {
+    "engine": "PostgreSQL",
+    "environmentVariable": "DATABASE_URL",
+    "provisionedBy": "owner"
+  },
+  "healthPath": "/api/health",
+  "note": "Human-readable configuration, not a native Seenode manifest. Create only the web service; do not provision a database or volume."
 }

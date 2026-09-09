@@ -11,17 +11,17 @@ export const metadata: Metadata = {
   description:
     'Descubre hasta dónde puedes viajar con tu presupuesto. Organiza tu itinerario, gastos y preparativos en un solo lugar.',
   manifest: '/manifest.webmanifest',
-  icons: { icon: '/favicon.svg', apple: '/icon-192.png' },
+  icons: { icon: '/brand/app-icon.png', apple: '/brand/app-icon.png' },
   metadataBase: new URL(process.env.APP_ORIGIN || 'http://localhost:3000'),
   openGraph: {
     title: 'VoyConPlan — Tu viaje, con plan.',
     description: 'Descubre destinos por presupuesto y organiza tu viaje.',
-    images: [{ url: '/og.png', width: 1730, height: 909 }],
+    images: [{ url: '/brand/social-cover.png', width: 1774, height: 887 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'VoyConPlan — Tu viaje, con plan.',
-    images: ['/og.png'],
+    images: ['/brand/social-cover.png'],
   },
 };
 export default function Layout({ children }: { children: React.ReactNode }) {

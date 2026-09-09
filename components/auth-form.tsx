@@ -4,27 +4,28 @@ import {
   ArrowLeft,
   ArrowRight,
   LockKeyhole,
-  Route,
   ShieldCheck,
 } from 'lucide-react';
+import BrandLogo from './brand-logo';
 
 type Mode = 'login' | 'register' | 'setup';
 export function AuthForm({ mode }: { mode: Mode }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [setupAvailable, setSetupAvailable] = useState<boolean | null>(null);
+  const [accountsAvailable, setAccountsAvailable] = useState<boolean | null>(null);
   const [returnTo, setReturnTo] = useState('/viajes');
   const create = mode !== 'login';
   useEffect(() => {
     setReturnTo(
       new URLSearchParams(window.location.search).get('return_to') || '/viajes',
     );
-    if (mode === 'setup') {
       fetch('/api/auth/status', { cache: 'no-store' })
         .then(async (response) => {
           if (!response.ok)
             throw new Error('No se pudo consultar la configuración.');
           const value = await response.json();
+          setAccountsAvailable(value.databaseConfigured !== false);
           setSetupAvailable(value.setupAvailable === true);
         })
         .catch(() =>
@@ -32,7 +33,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
             'No se pudo comprobar la configuración. Recarga esta página.',
           ),
         );
-    }
   }, [mode]);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -92,7 +92,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       className="page"
       style={{
         minHeight: '100vh',
-        background: '#f3f6ef',
+        background: '#F7F6EE',
         padding: '28px 20px',
       }}
     >
@@ -107,7 +107,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           textDecoration: 'none',
         }}
       >
-        <Route size={26} /> VoyConPlan
+        <BrandLogo />
       </a>
       <section
         className="panel"
@@ -118,6 +118,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           padding: 'clamp(22px, 5vw, 40px)',
         }}
       >
+        <img className="auth-cover" src="/brand/travel-editorial.png" alt="Una pausa para imaginar el próximo viaje. Imagen editorial generada." width={2172} height={724} />
         <div style={{ color: '#526943', marginBottom: 18 }}>
           {mode === 'setup' ? (
             <ShieldCheck size={32} />
@@ -145,7 +146,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
               ? 'Guarda tus itinerarios, organiza tus gastos y viaja con un plan.'
               : 'Entra con el correo y la contraseña de tu cuenta VoyConPlan.'}
         </p>
-        {mode === 'setup' && setupAvailable === false ? (
+        {accountsAvailable === false ? (
+          <div role="status" className="notice">
+            {mode === 'setup'
+              ? 'La administración estará disponible cuando conectes tu base de datos.'
+              : 'Estamos preparando las cuentas. Por ahora puedes explorar destinos y descargar el PDF de ejemplo.'}
+            <a className="text-link" href="/">Seguir explorando</a>
+          </div>
+        ) : mode === 'setup' && setupAvailable === false ? (
           <div role="status" className="notice">
             La configuración inicial ya está completa o aún no está habilitada.{' '}
             <a href="/entrar">Ir a iniciar sesión</a>
@@ -245,7 +253,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
             <button
               className="btn lime"
               type="submit"
-              disabled={busy || (mode === 'setup' && setupAvailable !== true)}
+              disabled={busy || accountsAvailable !== true || (mode === 'setup' && setupAvailable !== true)}
               style={{ width: '100%', justifyContent: 'center', minHeight: 48 }}
             >
               {busy

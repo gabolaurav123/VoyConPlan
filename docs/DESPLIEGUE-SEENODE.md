@@ -1,48 +1,57 @@
-# Despliegue en Seenode
+# Despliegue web en Seenode
 
 Destino solicitado: grupo Gimnasio-del-Cerebro, repositorio gabolaurav123/VoyConPlan, rama main.
-La rama actual funciona en Node 24. La versión anterior de Sites se conserva en el historial.
+Se despliega únicamente el servicio web. No crear base de datos ni volumen en Seenode.
+El usuario conectará una base PostgreSQL externa mediante variables de entorno.
 
 ## Servicio
 
 - Runtime: Node 24.
 - Build: npm ci --include=dev && npm run build.
-- Start: npm start (aplica migraciones y ejecuta el servidor de producción).
-- Puerto:3000, dirección 0.0.0.0.
-- Réplicas: exactamente 1.
-- Volumen persistente: 5 GB montado en /data.
-- DATABASE_PATH=/data/voyconplan.sqlite.
-- Healthcheck: /api/health.
-- Auto-deploy desde main cuando se habilite en Seenode.
+- Start: npm start (migra PostgreSQL cuando DATABASE_URL existe y arranca el servidor).
+- Puerto: 3000, dirección 0.0.0.0.
+- Réplicas iniciales: 1. Sin volumen ni escritura de datos en disco local de producción.
+- Healthcheck de disponibilidad web: /api/health.
+- Diagnóstico de base de datos: /api/health?database=1.
 
-El volumen es obligatorio. El filesystem ordinario del contenedor es efímero. Esta configuración SQLite no admite añadir réplicas; para escalar horizontalmente hay que migrar a PostgreSQL.
+Sin DATABASE_URL el arranque deja constancia del modo DEMO. La portada, catálogo y descubrimiento funcionan con datos locales DEMO; el alta de cuentas, inicio de sesión, guardado, enlaces privados y administración responden 503 con una explicación. El healthcheck web indica database:not_configured; la comprobación explícita de DB devuelve503. No se crea ningún archivo SQLite en producción, aunque DATABASE_PATH esté establecido.
 
 ## Variables
 
 NODE_ENV=production
 APP_ORIGIN=origen HTTPS exacto entregado por Seenode, sin barra final
 VINEXT_TRUSTED_HOSTS=hostname exacto de ese origen
-DATABASE_PATH=/data/voyconplan.sqlite
 ADMIN_EMAILS=gabolaurav@gmail.com
-ADMIN_SETUP_TOKEN=token aleatorio 32 bytes base64url; marcarlo secreto con asterisco en Seenode.
+ADMIN_SETUP_TOKEN=token aleatorio de32bytes base64url, secreto
+DATABASE_URL=postgresql://usuario:contraseña@host:puerto/base
+DATABASE_SSL_MODE=verify-full
+DATABASE_POOL_MAX=5
+DATABASE_SSL_CA=certificado CA PEM opcional del proveedor
 
-No usar datos de producción ni el token real en GitHub. No reusar tokens de la instalación privada de Sites.
+DATABASE_URL y ADMIN_SETUP_TOKEN son secretos. Nunca se incluyen en Git ni en registros. Cuando el usuario facilite su PostgreSQL, debe proporcionar una base ya creada y permisos para crear tablas, índices y ejecutar sus migraciones. No se admite una URL MySQL. Si el proveedor usa PgBouncer, usar una conexión directa o session pooling para migrar: el migrador mantiene un advisory lock de sesión. La aplicación usa conexiones del pool con cada transacción completa en un mismo cliente.
+
+TLS verifica el certificado y hostname por defecto, incluso si la URL contiene sslmode=require. Los parámetros SSL de la URL se normalizan para evitar que sobrescriban esta verificación. Para una CA privada, configurar DATABASE_SSL_CA con PEM completo. DATABASE_SSL_MODE=disable desactiva TLS solo por configuración explícita; reservarlo para una conexión local o privada de confianza. No se desactiva validación de certificados automáticamente.
+
+Al guardar DATABASE_URL, volver a desplegar o reiniciar. npm start ejecuta las migraciones de drizzle/postgres ordenadas, verifica sus checksums y bloquea migraciones concurrentes. Una URL configurada pero inválida o inaccesible hace fallar el arranque para evitar aparentar un backend listo. La configuración del proveedor externo, firewall, certificados, respaldo y recuperación corresponden a esa base; no se crean recursos adicionales en Seenode.
 
 ## Acceso
 
-La identidad proviene de sesiones revocables almacenadas en SQLite. No se aceptan cabeceras de identidad de OpenAI/Cloudflare suministradas por visitantes.
-El administrador se activa una sola vez en /configurar-admin, con el token secreto y una contraseña elegida por el propietario. La coincidencia del correo por sí sola no concede permisos.
-El registro normal crea usuarios sin privilegios; no hay verificación ni recuperación por correo mientras no se conecte un proveedor de email.
+La identidad proviene de sesiones opacas revocables almacenadas como hash en PostgreSQL. No se confía en headers OpenAI/Cloudflare enviados por visitantes.
+El administrador se activa una sola vez en /configurar-admin con ADMIN_SETUP_TOKEN y una contraseña elegida por el propietario. La coincidencia del correo por sí sola no concede permisos. Hasta conectar DB esta activación no está disponible.
+El registro normal crea usuarios sin privilegios. No hay verificación ni recuperación por correo mientras no se implemente el proveedor correspondiente.
 
-## Operación
+## Migraciones y desarrollo
 
-Las migraciones SQL son versionadas y transaccionales. No modificar una migración que haya sido aplicada: agregar la siguiente.
-La copia antigua de Sites y sus datos no se transfieren automáticamente. Los datos locales de pruebas tampoco se suben.
-Respaldar el archivo SQLite mediante el mecanismo de backup SQLite o una copia coherente de la base pausada; no copiar únicamente el archivo principal mientras WAL tiene escrituras activas.
-La exportación de cuenta permite al usuario descargar su información, pero no sustituye un backup operativo.
-El resto del alcance sigue descrito en ESTADO-DE-ENTREGA: APIs turísticas, IA y cobros no se activan por cambiar de hosting.
+PostgreSQL: drizzle/postgres/0000_initial.sql y 0001_auth.sql. No modificar una migración aplicada: añadir otra. Timestamps de sesión usan BIGINT; fechas ISO y documentos JSON conservan TEXT para compatibilidad con el dominio. Batches usan SERIALIZABLE y reintentan la transacción completa ante SQLSTATE40001/40P01.
+SQLite se conserva únicamente para desarrollo/tests sin DATABASE_URL. Los archivos locales y sus datos no se suben ni se transfieren automáticamente. Las bases anteriores de Sites tampoco se importan por cambiar hosting.
 
-## Coste documentado
+## Validación y límites
 
-Basic web: $3/mes; volumen 5 GB: $2.50/mes; total básico: $5.50/mes. Se descuenta del saldo del grupo por tiempo de ejecución. Verificar precio mostrado en Seenode al activar. No requiere comprar créditos automáticamente.
-Fuentes: https://seenode.com/docs/reference/pricing y https://seenode.com/docs/how-to/persistent-storage.
+Las pruebas nuevas ejecutan SQL real sobre el motor PostgreSQL embebido PGlite: migraciones, checksums, rollback, RETURNING, autenticación, sesión y cuotas. Un test separado verifica reintentos de serialización y liberación de conexiones. PGlite usa una sesión serializada; estas pruebas no sustituyen validar SSI entre conexiones remotas, red, TLS, backups ni persistencia del proveedor elegido. No se ha usado una base externa del usuario.
+La auditoría de dependencias de producción debe verificarse con npm audit --omit=dev. Las herramientas Drizzle de desarrollo conservaban cuatro avisos moderados; no se aplica una actualización forzada que cambie su versión mayor.
+El catálogo y los costos siguen siendo DEMO. Servicios turísticos, IA, email y cobros requieren implementación además de credenciales.
+
+## Coste y fuentes
+
+Solo servicio web Basic, según el precio mostrado en el panel. No se contrata volumen ni DB Seenode. Los costes de una base externa serán los de su proveedor.
+[Seenode Node y runtime](https://seenode.com/docs/reference/runtimes), [puerto](https://seenode.com/docs/how-to/configure/port), [TLS node-postgres](https://node-postgres.com/features/ssl), [transacciones node-postgres](https://node-postgres.com/features/transactions), [aislamiento PostgreSQL](https://www.postgresql.org/docs/current/transaction-iso.html).

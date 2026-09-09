@@ -33,6 +33,8 @@ const MAX_BODY_BYTES = 12_000;
 const HASH_OPTIONS = { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 const sha256 = (value: string) =>
   createHash('sha256').update(value).digest('hex');
+const uniqueConstraint = (error: unknown) =>
+  (error as { code?: string })?.code === '23505' || /UNIQUE constraint|constraint failed/i.test(String(error));
 class AuthError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -335,7 +337,7 @@ export function createAuthService({
             sessionStatement(userId, sessionToken),
           ]);
         } catch (error) {
-          if (/UNIQUE constraint|constraint failed/i.test(String(error)))
+          if (uniqueConstraint(error))
             throw new AuthError(
               409,
               'La cuenta administradora ya fue configurada o el correo no está disponible.',
@@ -390,7 +392,7 @@ export function createAuthService({
             sessionStatement(userId, sessionToken),
           ]);
         } catch (error) {
-          if (/UNIQUE constraint|constraint failed/i.test(String(error)))
+          if (uniqueConstraint(error))
             throw new AuthError(
               409,
               'No se pudo crear esa cuenta. Si ya tienes una, inicia sesión.',

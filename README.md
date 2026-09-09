@@ -1,49 +1,46 @@
 # VoyConPlan
 
-Planificador de viajes con descubrimiento DEMO, itinerarios, gastos, checklist, enlaces y administración.
-Esta rama está adaptada a Seenode: Node 24, Vinext y SQLite durable. La instalación anterior de Sites se conserva en el historial y en su alojamiento independiente.
+Planificador de viajes con descubrimiento DEMO, itinerarios, gastos, checklist, documentos y administración. Node 24 con Vinext. La versión anterior de Sites permanece en el historial.
 
-## Arranque local
+## Seenode: solo servicio web
 
-Requiere Node 24 y npm.
+Grupo **Gimnasio-del-Cerebro**, repositorio **gabolaurav123/VoyConPlan**, rama **main**.
 
-1. Ejecuta npm ci.
+- Runtime Node 24. Build: `npm ci --include=dev && npm run build`.
+- Inicio: `npm start`. Puerto 3000, escucha 0.0.0.0.
+- Web Basic. No se crea una base de datos ni un volumen.
+- PostgreSQL externo mediante `DATABASE_URL`, marcada secreta.
+- Origen exacto en `APP_ORIGIN` y hostname en `VINEXT_TRUSTED_HOSTS`.
+
+Sin DATABASE_URL se puede explorar el catálogo DEMO y descargar el PDF de ejemplo. Las cuentas, el guardado y la administración necesitan conectar la base. En producción no se abre SQLite ni se guardan datos en disco efímero. Al conectar una base PostgreSQL vacía dedicada y desplegar de nuevo, el arranque aplica las migraciones.
+
+Configuración de TLS y operación: [docs/DESPLIEGUE-SEENODE.md](docs/DESPLIEGUE-SEENODE.md). seenode.json es una referencia humana, no un manifiesto nativo.
+
+## Identidad y PDF
+
+Logo, icono de aplicación, portada social y cuatro escenas editoriales creados con ImageGen en public/brand. Verde bosque #173F35, lima #DBED9E y crema #F7F6EE. Los destinos conservan fotografías documentales y créditos en public/image-sources.json.
+
+El PDF compone fotografía, resumen, presupuesto, reservas, itinerario y preparativos de manera continua. Los saltos dependen del espacio disponible. El ejemplo público usa el mismo constructor que los PDF de los viajes.
+
+## Desarrollo local
+
+1. Instala Node 24 y ejecuta `npm ci`.
 2. Copia .env.example a .env.local.
-3. Configura APP_ORIGIN=http://localhost:3000. Deja DATABASE_PATH vacío para usar work/local-voyconplan.sqlite, o indica una ruta absoluta.
-4. Genera ADMIN_SETUP_TOKEN con 32 bytes aleatorios codificados base64url y guárdalo únicamente en .env.local. ADMIN_EMAILS indica el correo reservado para el primer administrador.
-5. Ejecuta npm run dev. El arranque aplica las migraciones.
-6. Abre http://localhost:3000/configurar-admin y activa el administrador con ese token y una contraseña elegida por ti.
-7. El resto de las cuentas se registra en /crear-cuenta y entra por /entrar.
+3. Configura APP_ORIGIN=http://localhost:3000.
+4. Sin PostgreSQL, usa DATABASE_PATH absoluto o deja el valor vacío para SQLite local en work/.
+5. Define ADMIN_EMAILS y un ADMIN_SETUP_TOKEN aleatorio de 32 bytes en base64url, solo en el archivo local.
+6. Ejecuta `npm run dev`; activa el administrador en /configurar-admin con una contraseña elegida por ti.
 
-Las sesiones son revocables y se guardan mediante hash en la base de datos. No se aceptan cabeceras de identidad de terceros. Un visitante no puede obtener privilegios escribiendo el correo administrativo.
+DATABASE_URL reemplaza el almacenamiento local en producción. Nunca subir .env, claves, bases ni datos de prueba a GitHub.
 
-## Seenode
+## Verificación
 
-Consulta docs/DESPLIEGUE-SEENODE.md y seenode.json para la configuración preparada.
-Node 24; build npm ci --include=dev && npm run build; start npm start; puerto 3000; una réplica.
-Se requiere un volumen persistente de 5 GB en /data y DATABASE_PATH=/data/voyconplan.sqlite. La base no debe quedar en disco efímero.
-APP_ORIGIN debe ser el origen HTTPS exacto del servicio. VINEXT_TRUSTED_HOSTS debe contener su hostname exacto. Marcar ADMIN_SETUP_TOKEN como secreto.
-
-## Desarrollo y pruebas
-
-npm test ejecuta 32 pruebas de dominio, SQLite y autenticación.
-npx tsc --noEmit valida TypeScript.
-npm run build genera el cliente y servidor Node de producción.
-Las pruebas sqlite y auth usan bases temporales y nunca deben apuntar a producción.
-tests/api.integration.mjs describe la antigua identidad local de Sites: es histórica y no se usa en Seenode. La nueva suite de integración verifica sesiones y aislamiento entre cuentas.
-La migración inicial de 14 tablas se preserva; la migración de autenticación agrega cuentas, sesiones y límites. El arranque detecta cambios en migraciones ya aplicadas mediante checksum.
+`npm test` ejecuta pruebas de dominio, SQLite, autenticación y PostgreSQL. `npx tsc --noEmit` verifica tipos. `npm run build` compila cliente y servidor. Los tests usan datos sintéticos; PostgreSQL se valida con PGlite. Falta comprobar TLS, red y concurrencia de conexiones con el proveedor real.
 
 ## Alcance
 
-Los registros del usuario y las funciones de planificación persisten. Costos, cambio de moneda, tiempos de vuelo y afinidad usan un catálogo DEMO de 6 destinos. Requisitos, disponibilidad, tarifas, IA, pagos y correo no están conectados.
-No existe verificación ni recuperación por email en esta entrega. El alta inicial del administrador depende de un secreto de un solo uso.
-La matriz docs/ESTADO-DE-ENTREGA.md corresponde a la primera entrega en Sites; la adaptación posterior y su validación están en docs/DESPLIEGUE-SEENODE.md.
-Los proveedores aún requieren implementación, además de claves. No se vende ninguna suscripción ni se generan reservas reales.
+Costos, cambio de moneda, tiempos de vuelo y afinidad usan un catálogo DEMO de seis destinos. Disponibilidad, requisitos migratorios, clima, IA, cobros y correo no están conectados. Los proveedores requieren implementación además de claves. No se generan reservas reales.
 
-## Seguridad y operación
+No existe verificación ni recuperación de contraseña por email. Las sesiones se pueden revocar y el correo administrativo por sí solo no concede privilegios. Los enlaces de lectura omiten datos privados y pueden caducar o revocarse. La PWA no almacena APIs privadas.
 
-Los enlaces de lectura excluyen notas, PNR y gastos; se guardan como hash, caducan y pueden revocarse.
-Mutaciones con origen exacto y permisos de propietario/miembro. Cuotas transaccionales, creación idempotente y edición con versión optimista.
-La PWA no almacena APIs privadas. Los borradores que fallan al guardar se conservan en la sesión y pueden descargarse.
-Antes del lanzamiento comercial: completar integraciones, pruebas de carga/roles, revisión de accesibilidad y deuda de lint/tipado; establecer respaldo y recuperación de la base, retención y textos legales definitivos.
-Las imágenes reales tienen atribución en public/image-sources.json; las escenas editoriales generadas se identifican como tales.
+docs/ESTADO-DE-ENTREGA.md es el registro histórico de la primera entrega en Sites.

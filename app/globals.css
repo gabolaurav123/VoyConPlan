@@ -26,33 +26,33 @@
   --radius-sm: 6px;
 }
 :root {
-  --background: #fcfcf8;
-  --foreground: #183536;
-  --primary: #183536;
+  --background: #F7F6EE;
+  --foreground: #173F35;
+  --primary: #173F35;
   --primary-foreground: #fff;
   --card: #fff;
   --border: #dfe5df;
   --ring: #79a63e;
   --muted: #f0f3eb;
   --muted-foreground: #687871;
-  --lime: #cef578;
+  --lime: #DBED9E;
   --sidebar: #fff;
-  --sidebar-foreground: #183536;
-  --sidebar-primary: #183536;
+  --sidebar-foreground: #173F35;
+  --sidebar-primary: #173F35;
   --sidebar-primary-foreground: #fff;
   --sidebar-accent: #eef5e3;
-  --sidebar-accent-foreground: #183536;
+  --sidebar-accent-foreground: #173F35;
   --sidebar-border: #dfe5df;
   --sidebar-ring: #79a63e;
 }
 .dark {
   --background: #142c2c;
   --foreground: #f3f6ed;
-  --primary: #cef578;
-  --primary-foreground: #183536;
+  --primary: #DBED9E;
+  --primary-foreground: #173F35;
   --card: #1d3938;
   --border: #3b5350;
-  --ring: #cef578;
+  --ring: #DBED9E;
   --muted: #284442;
   --muted-foreground: #bccac2;
 }
@@ -116,7 +116,7 @@ textarea {
   border-radius: 9px;
   background: #fff;
   padding: 9px 12px;
-  color: #183536;
+  color: #173F35;
 }
 label {
   font-size: 14px;
@@ -164,6 +164,10 @@ h3 {
   letter-spacing: -1.1px;
   font-weight: 750;
 }
+.brand-logo { display:block; width:210px; height:70px; object-fit:contain; }
+.page footer .brand-logo { width:165px; height:55px; }
+.auth-cover { width:100%; height:115px; object-fit:cover; border-radius:12px; margin:0 0 26px; }
+.visual-label>span { background:#173f35cc; border-radius:5px; padding:6px 8px; }
 .brand-icon {
   width: 35px;
   height: 37px;
@@ -203,14 +207,14 @@ h3 {
   bottom: 19px;
   left: 0;
   position: absolute;
-  background: #183536;
+  background: #173F35;
 }
 .btn {
   display: inline-flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  background: #183536;
+  background: #173F35;
   color: white;
   border-radius: 9px;
   padding: 14px 20px;
@@ -235,7 +239,7 @@ h3 {
 .btn.outline {
   background: transparent;
   border: 1px solid #cdd8ce;
-  color: #183536;
+  color: #173F35;
 }
 .page {
   max-width: 1280px;
@@ -510,7 +514,7 @@ h3 {
 }
 .page footer .brand {
   font-size: 20px;
-  color: #183536;
+  color: #173F35;
 }
 .page footer span {
   margin-right: auto;
@@ -759,9 +763,9 @@ h3 {
   background: transparent;
 }
 .chip.selected {
-  background: #183536;
+  background: #173F35;
   color: white;
-  border-color: #183536;
+  border-color: #173F35;
 }
 .chip:hover {
   border-color: #6a876c;
@@ -939,7 +943,7 @@ h3 {
   display: flex;
   align-items: center;
   gap: 20px;
-  background: #183536;
+  background: #173F35;
   color: white;
   border-radius: 12px;
   padding: 12px 18px;
@@ -1325,12 +1329,12 @@ h3 {
   box-shadow: none !important;
 }
 .trip-tab-list [data-slot='tabs-trigger'][data-active] {
-  border-bottom: 3px solid #183536 !important;
-  color: #183536;
+  border-bottom: 3px solid #173F35 !important;
+  color: #173F35;
 }
 .trip-tab-list [data-slot='tabs-trigger'][aria-selected='true'] {
-  border-bottom: 3px solid #183536 !important;
-  color: #183536;
+  border-bottom: 3px solid #173F35 !important;
+  color: #173F35;
 }
 .trip-layout {
   display: grid;
@@ -1365,9 +1369,9 @@ h3 {
   margin-top: 4px;
 }
 .day-picker button.selected {
-  background: #183536;
+  background: #173F35;
   color: white;
-  border-color: #183536;
+  border-color: #173F35;
 }
 .day-picker button.selected small {
   color: #cbd5bc;
@@ -2283,6 +2287,25 @@ h3 {
   border-radius: 16px;
   margin-bottom: 16px;
 }
+.travel-stories { margin:75px 0; }
+.travel-stories h2 { margin-bottom:28px; }
+.story-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; }
+.story-card { padding:0; border:1px solid #dfe3d7; border-radius:18px; overflow:hidden; text-align:left; background:#fff; transition:transform .2s,box-shadow .2s; }
+.story-card:hover { transform:translateY(-4px); box-shadow:0 14px 35px #173f3510; }
+.story-card>img { display:block; width:100%; aspect-ratio:3/2; height:auto; object-fit:cover; }
+.story-copy { display:flex; flex-direction:column; gap:11px; padding:24px; }
+.story-copy>strong { font-size:24px; letter-spacing:-.7px; line-height:1.15; }
+.story-copy>span { font-size:14px; line-height:1.55; color:#63736c; }
+.story-copy .story-link { display:flex; align-items:center; gap:8px; font-weight:650; color:#173f35; margin-top:6px; }
+.pdf-feature { margin:65px 0 20px; padding:45px 50px 0; display:grid; grid-template-columns:1.1fr .8fr; gap:70px; align-items:center; background:#e9eddf; border-radius:24px; overflow:hidden; }
+.pdf-feature-copy { padding-bottom:45px; }
+.pdf-feature h2 { font-size:clamp(29px,3.2vw,42px); line-height:1.15; letter-spacing:-1.4px; margin:0 0 20px; }
+.pdf-feature p { max-width:490px; color:#586b5f; line-height:1.7; margin:0 0 25px; }
+.pdf-feature small { display:block; font-size:11px; margin-top:12px; color:#63736c; }
+.pdf-preview { width:100%; display:block; align-self:end; transform:rotate(3deg) translateY(35px); box-shadow:0 12px 55px #173f3530; background:#f7f6ee; border-radius:3px; overflow:hidden; }
+.pdf-preview img { display:block; width:100%; height:auto; }
+@media(max-width:850px) { .story-grid { gap:15px; } .story-copy { padding:18px; } .story-copy>strong { font-size:21px; } .pdf-feature { padding:30px 30px 0; gap:30px; } }
+@media(max-width:650px) { .brand-logo { width:185px; height:51px; } .topbar { gap:8px; padding-top:9px; } .story-grid { grid-template-columns:1fr; gap:20px; } .travel-stories { margin:46px 0; } .pdf-feature { grid-template-columns:1fr; gap:0; padding:28px 24px 0; } .pdf-feature-copy { padding-bottom:25px; } .pdf-preview { max-width:270px; justify-self:center; transform:rotate(3deg) translateY(20px); } .story-copy>strong { font-size:25px; } }
 @media (max-width: 600px) {
   .destination-hero {
     height: 230px;

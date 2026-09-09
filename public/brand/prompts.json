@@ -1,0 +1,41 @@
+{
+  "brand": "VoyConPlan",
+  "generator": "ImageGen integrated",
+  "date": "2026-09-09",
+  "note": "Prompt set recorded for reuse; instructions consolidated from the generation requests. Editorial scenes are generated inspiration.",
+  "assets": [
+    {
+      "file": "logo.png",
+      "prompt": "Create the final master horizontal logo for the travel planning brand VoyConPlan. Exact spelling VoyConPlan, capitals V C P, no spaces. Single logo, no mockup. Refined warm contemporary travel editorial identity. Distinctive continuous looping route forming an open V with a destination sun/dot, bold smooth strokes. Readable friendly geometric wordmark. Forest green #173F35 with a small soft lime #DBED9E accent. Real transparent alpha background. No tagline, shadow, gradient or texture. Wide 3:1 composition for website header and itinerary PDFs."
+    },
+    {
+      "file": "app-icon.png",
+      "reference": "logo.png",
+      "prompt": "Use the supplied final logo as an edit target. Remove the wordmark only; preserve the route-shaped V symbol and lime sun dot, proportions, shapes and colors. Center in a square cream #F7F6EE background with about 18 percent clearspace. Flat forest green #173F35 and lime #DBED9E. No text, shadows, border or extra marks. Favicon and PWA tile for the same brand."
+    },
+    {
+      "file": "travel-editorial.png",
+      "prompt": "Panoramic premium editorial travel photograph: olive day bag, folded map with unreadable marks, blank notebook, pencil, coffee and sunglasses on a warm ivory cafe table overlooking lush green coast and blue sea. No passports, tickets, readable text or brands. Warm natural daylight, forest green #173F35, lime #DBED9E and cream #F7F6EE accents. Wide 3:1, objects in lower left and spacious sea horizon to the right. Tactile authentic materials, restrained analog warmth. Fictional inspiration scene."
+    },
+    {
+      "file": "social-cover.png",
+      "references": [
+        "logo.png",
+        "travel-editorial.png"
+      ],
+      "prompt": "Polished 2:1 social cover. Place supplied VoyConPlan logo faithfully on the cream left 45 percent and use supplied planning photograph on right 55 percent. Exact headline: Tu viaje, con plan. Supporting text: Descubre. Organiza. Disfruta. Forest green #173F35 type, lime #DBED9E route accent, generous margins, editorial hierarchy. No interface, watermark, mockup or other labels."
+    },
+    {
+      "file": "solo-trip.png",
+      "prompt": "Use case: photorealistic-natural. Editorial travel inspiration photograph for VoyConPlan, horizontal 3:2. One adult solo traveler walks naturally through a colorful sunlit fictional historic city street, medium-long distance, full body. Sand and muted pastel facades, forest-green shutters, limestone paving, potted foliage. No recognizable landmark. Premium candid travel magazine photography, natural textures, subtle film grain, warm morning light, gentle shadows. Forest green #173F35, soft lime #DBED9E and sand #F7F6EE naturally in clothing and props. Green overshirt, neutral small backpack, generous space, subject under one quarter of frame. No posed portrait, closeup, text, logos, brands, watermark or collage."
+    },
+    {
+      "file": "together-trip.png",
+      "prompt": "Use case: photorealistic-natural. Editorial travel inspiration photograph for VoyConPlan, horizontal 3:2. An adult couple explores a peaceful fictional Mediterranean coast, walking side by side along a gently curving stone coastal path above a cove and sunlit sea. Premium candid travel magazine photography, natural textures, subtle film grain, warm morning light, gentle shadows. Forest green #173F35, soft lime #DBED9E, sand #F7F6EE in a light olive shirt, linen clothing, vegetation and backpack. People medium-long distance, full bodies under one quarter frame, spontaneous relaxed interaction. No recognizable destination, closeup, text, logos, brands, watermark or collage."
+    },
+    {
+      "file": "family-trip.png",
+      "prompt": "Use case: photorealistic-natural. Editorial travel inspiration photograph for VoyConPlan, horizontal 3:2. Two adults and two school-age children take an easy walk on a safe wide level trail beside a sunlit meadow and shallow creek, green hills and leafy trees. Fictional landscape. Premium candid travel magazine photography, natural textures, subtle film grain, warm morning light, gentle shadows. Forest green #173F35, lime #DBED9E and sand #F7F6EE in simple outdoor clothing, daypack, grass and stone. Family seen at a distance walking away, spontaneous, full bodies under one quarter of frame. No cliffs, risky paths, closeups, text, logos, brands, watermark or collage."
+    }
+  ]
+}

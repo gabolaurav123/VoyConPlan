@@ -1,6 +1,5 @@
 'use client';
 import {
-  Route,
   ArrowUpRight,
   Globe,
   LogIn,
@@ -11,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { Toaster } from '@/components/ui/toast';
 import { toast } from '@/lib/toast';
 import { usePathname } from 'next/navigation';
+import BrandLogo from './brand-logo';
 import {
   Dialog,
   DialogContent,
@@ -160,10 +160,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     <>
       <header className="topbar">
         <a className="brand" href="/">
-          <span className="brand-icon">
-            <Route size={23} />
-          </span>
-          VoyConPlan<span className="beta">BETA</span>
+          <BrandLogo />
         </a>
         <nav>
           {[
@@ -191,7 +188,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         {children}
         <footer>
           <a className="brand" href="/">
-            VoyConPlan
+            <BrandLogo />
           </a>
           <span>Tu viaje, con plan.</span>
           <a href="/blog">Guías</a>

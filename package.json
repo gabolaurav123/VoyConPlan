@@ -12,9 +12,10 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "db:generate": "drizzle-kit generate",
-    "test": "node --experimental-strip-types --test tests/domain.test.mjs tests/sqlite.test.mjs tests/auth.test.mjs",
+    "test": "node --experimental-strip-types --test tests/domain.test.mjs tests/sqlite.test.mjs tests/auth.test.mjs tests/postgres.test.mjs",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
-    "test:api": "node --env-file=.env.local --experimental-strip-types tests/node-api.integration.mjs"
+    "test:api": "node --env-file=.env.local --experimental-strip-types tests/node-api.integration.mjs",
+    "test:pdf": "node --experimental-strip-types scripts/pdf-fixtures.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
@@ -29,6 +30,7 @@
     "jspdf": "^4.2.1",
     "leaflet": "^1.9.4",
     "lucide-react": "1.31.0",
+    "pg": "8.23.0",
     "qrcode": "^1.5.4",
     "react": "19.2.8",
     "react-day-picker": "9.8.1",
@@ -42,9 +44,11 @@
     "vinext": "1.0.0-beta.6"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@tailwindcss/postcss": "4.2.1",
     "@types/leaflet": "^1.9.22",
     "@types/node": "^24.0.0",
+    "@types/pg": "8.23.1",
     "@types/qrcode": "^1.5.6",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",

@@ -5,12 +5,12 @@ import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 export function migrationDatabasePath() {
+  if (process.env.NODE_ENV === 'production') throw new Error('SQLite is disabled in production. Configure DATABASE_URL for external PostgreSQL.');
   const configured = process.env.DATABASE_PATH?.trim();
   if (configured) {
     if (!isAbsolute(configured)) throw new Error('DATABASE_PATH must be an absolute filesystem path.');
     return resolve(configured);
   }
-  if (process.env.NODE_ENV === 'production') throw new Error('DATABASE_PATH is required in production; mount persistent storage first.');
   return resolve(process.cwd(), 'work', 'local-voyconplan.sqlite');
 }
 
@@ -58,10 +58,19 @@ export function migrateDatabaseFile(databasePath, migrationDirectory = resolve(p
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try {
-    const result = migrateDatabaseFile(migrationDatabasePath());
-    console.log(`Database schema ready: ${result.applied.length} applied, ${result.total} checked.`);
+    if (process.env.DATABASE_URL?.trim()) {
+      const { migratePostgres } = await import('./migrate-postgres.mjs');
+      const result = await migratePostgres();
+      console.log(`PostgreSQL schema ready: ${result.applied.length} applied, ${result.total} checked.`);
+    } else if (process.env.NODE_ENV === 'production') {
+      console.log('DATABASE_URL is not configured. Starting the public demo; account and saved-trip operations are unavailable. No local database will be created.');
+    } else {
+      const result = migrateDatabaseFile(migrationDatabasePath());
+      console.log(`Local SQLite schema ready: ${result.applied.length} applied, ${result.total} checked.`);
+    }
   } catch (error) {
-    console.error(`Database migration failed: ${error instanceof Error ? error.message : 'unknown error'}`);
+    // Driver errors can include connection details. Keep runtime logs secret-free.
+    console.error('Database migration failed. Check the connection, TLS settings, migration files and database permissions.');
     process.exitCode = 1;
   }
 }

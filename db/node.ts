@@ -1,6 +1,7 @@
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import { dirname, isAbsolute, resolve } from 'node:path';
+import { openPostgresDatabase } from './postgres.ts';
 
 export type NodeRow = Record<string, unknown>;
 export type NodeResult<T = NodeRow> = {
@@ -20,18 +21,18 @@ export interface NodeDatabase {
   readonly path: string;
   prepare(sql: string): NodeStatement;
   batch<T = NodeRow>(statements: NodeStatement[]): Promise<NodeResult<T>[]>;
-  close(): void;
+  close(): void | Promise<void>;
 }
 
-/** Production must point explicitly at the durable Seenode volume. */
+/** SQLite is a local-development backend only. */
 export function resolveDatabasePath(): string {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('SQLite is disabled in production. Configure DATABASE_URL for external PostgreSQL.');
+  }
   const configured = process.env.DATABASE_PATH?.trim();
   if (configured) {
     if (!isAbsolute(configured)) throw new Error('DATABASE_PATH must be an absolute filesystem path.');
     return resolve(configured);
-  }
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('DATABASE_PATH is required in production; mount persistent storage first.');
   }
   return resolve(process.cwd(), 'work', 'local-voyconplan.sqlite');
 }
@@ -138,8 +139,21 @@ export function openNodeDatabase(path: string): NodeDatabase { return new SQLite
 
 let singleton: NodeDatabase | undefined;
 
+export class DatabaseNotConfiguredError extends Error {
+  readonly status = 503;
+  readonly code = 'DATABASE_NOT_CONFIGURED';
+  constructor() { super('La base de datos externa todavía no está configurada.'); }
+}
+
+export function databaseConfigured(): boolean {
+  return !!process.env.DATABASE_URL?.trim() || process.env.NODE_ENV !== 'production';
+}
+
 /** Lazy: importing server modules during a build never opens a file. */
 export function getNodeDb(): NodeDatabase {
-  singleton ??= openNodeDatabase(resolveDatabasePath());
+  if (!databaseConfigured()) throw new DatabaseNotConfiguredError();
+  singleton ??= process.env.DATABASE_URL?.trim()
+    ? openPostgresDatabase()
+    : openNodeDatabase(resolveDatabasePath());
   return singleton;
 }

@@ -1,6 +1,6 @@
 # Validación de la versión Node
 
-npm test ejecuta 32 pruebas: 10 de dominio, 8 de SQLite y 14 de autenticación. Cada prueba SQLite/auth usa una base temporal y la limpia al finalizar.
+npm test ejecuta 39 pruebas: 10 de dominio, 8 de SQLite, 14 de autenticación y 7 de PostgreSQL. Cada prueba SQLite/auth usa una base temporal y la limpia al finalizar.
 npx tsc --noEmit y npm run build verifican el servidor/cliente.
 
 ## Integración local de API
@@ -20,3 +20,8 @@ Build de producción y TypeScript aprobados. La validación HTTP integrada utili
 El aviso experimental node:sqlite proviene de Node 24. El lint completo conserva deuda preexistente; no se presenta como aprobado.
 
 Regresión adicional: node tests/anonymous.integration.mjs aprobó 160 lecturas públicas sin bloquear a otros visitantes. Bootstrap se activó correctamente después de 50 claves inválidas en la suite auth.
+
+
+Actualización de identidad y PostgreSQL: 39/39 pruebas core y 27/27 API local aprobadas. Las pruebas PostgreSQL usan PGlite; TLS, red y concurrencia del proveedor real quedan por verificar tras conectar DATABASE_URL.
+
+npm run test:pdf genera las muestras e informe en work/qa. El viaje de 3 días cabe en 2 páginas y el de 14 días en 6. Se comprueban límites, días vacíos agrupados, notas largas completas, QR, entrada inmutable, imágenes dañadas y compatibilidad con createTrip. Revisión visual con Poppler y extracción de texto: sin solapamientos ni canarios de pasaporte, PNR o nota privada superior.

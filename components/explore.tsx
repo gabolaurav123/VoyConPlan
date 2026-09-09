@@ -266,12 +266,12 @@ export default function Explore() {
           aria-label="Viajeros explorando un paisaje costero. Imagen editorial generada."
           style={{
             backgroundImage:
-              "linear-gradient(0deg,#102a2c90,transparent 65%),url('/images/" +
+              "linear-gradient(0deg,#102a2c90,transparent 65%),url('/brand/" +
               (search.type === 'Solo'
-                ? 'solo-city.png'
+                ? 'solo-trip.png'
                 : search.type === 'En familia'
-                  ? 'family-nature.png'
-                  : 'couple-coast.png') +
+                  ? 'family-trip.png'
+                  : 'together-trip.png') +
               "')",
           }}
         >
@@ -377,8 +377,8 @@ export default function Explore() {
           </span>
           <div className="inline">
             <button onClick={() => setAdvanced(!advanced)}>
-              <SlidersHorizontal size={15} /> {search.travelers} viajeros ·{' '}
-              {search.days} días · Filtros
+              <SlidersHorizontal size={15} /> {search.travelers} {search.travelers === 1 ? 'viajero' : 'viajeros'} ·{' '}
+              {search.days} {search.days === 1 ? 'día' : 'días'} · Filtros
             </button>
             <button onClick={() => setKnown(true)}>
               Ya sé adónde quiero ir <ArrowUpRight size={15} />
@@ -527,7 +527,7 @@ export default function Explore() {
             ))}
           </div>
           <span className="muted">
-            {search.travelers} personas · {search.days} días · {search.currency}
+            {search.travelers} {search.travelers === 1 ? 'persona' : 'personas'} · {search.days} {search.days === 1 ? 'día' : 'días'} · {search.currency}
           </span>
         </div>
         <div className="demo-note">
@@ -712,6 +712,37 @@ export default function Explore() {
             ))}
           </div>
         </div>
+      </section>
+      <section className="travel-stories" aria-labelledby="stories-title">
+        <div className="eyebrow">EL PLAN LO PONES TÚ</div>
+        <h2 id="stories-title">Hay muchas maneras de ir.</h2>
+        <div className="story-grid">
+          {[
+            ['Solo', 'A tu aire.', 'Sigue tu curiosidad. Encuentra tu propio ritmo.', 'solo-trip.png', 1],
+            ['En pareja', 'Mejor, contigo.', 'Una escapada y nuevas historias para compartir.', 'together-trip.png', 2],
+            ['En familia', 'Recuerdos en familia.', 'Pequeñas aventuras que se quedan para siempre.', 'family-trip.png', 4],
+          ].map(([type, title, description, photo, travelers]) => (
+            <button className="story-card" key={String(type)} onClick={() => {
+              patch({ type: String(type), travelers: Number(travelers) });
+              document.querySelector('.search-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}>
+              <img src={'/brand/' + photo} alt={'Inspiración para viajar ' + String(type).toLowerCase() + '. Escena editorial generada.'} width={1536} height={1024} loading="lazy" />
+              <span className="story-copy"><strong>{title}</strong><span>{description}</span><span className="story-link">Planificar {String(type).toLowerCase()} <ArrowUpRight size={17} /></span></span>
+            </button>
+          ))}
+        </div>
+      </section>
+      <section className="pdf-feature" aria-labelledby="pdf-feature-title">
+        <div className="pdf-feature-copy">
+          <div className="eyebrow">TU PLAN, TAMBIÉN EN PAPEL</div>
+          <h2 id="pdf-feature-title">Un viaje bien pensado.<br />Un plan que da gusto llevar.</h2>
+          <p>Itinerario, presupuesto y preparativos en un documento claro, con fotografías y espacio para lo que importa. Descárgalo y llévalo contigo.</p>
+          <a className="btn lime" href="/examples/voyconplan-ejemplo.pdf" target="_blank" rel="noreferrer">Ver un PDF de ejemplo <ArrowUpRight size={18} /></a>
+          <small>Ejemplo de planificación de 3 días. Datos orientativos.</small>
+        </div>
+        <a className="pdf-preview" href="/examples/voyconplan-ejemplo.pdf" target="_blank" rel="noreferrer" aria-label="Abrir el PDF de ejemplo de VoyConPlan">
+          <img src="/brand/pdf-preview.png" alt="Primera página del nuevo PDF de VoyConPlan, con fotografía, presupuesto y composición continua." width={794} height={1123} loading="lazy" />
+        </a>
       </section>
       {comparison.length > 0 && (
         <div className="compare-bar">

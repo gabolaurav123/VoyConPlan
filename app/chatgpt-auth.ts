@@ -1,16 +1,17 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getNodeDb } from '@/db/node';
+import { getNodeDb, databaseConfigured } from '@/db/node';
 import {
   createAuthService,
   safeReturnPath,
   type SessionUser,
 } from '@/lib/auth';
 
-// Compatibility name: identity comes only from opaque cookie sessions in SQLite.
+// Compatibility name: identity comes only from opaque database-backed cookie sessions.
 // No inbound identity header is trusted.
 export type ChatGPTUser = SessionUser;
 export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
+  if (!databaseConfigured()) return null;
   return createAuthService({ db: getNodeDb(), env: process.env }).session(
     await headers(),
   );
